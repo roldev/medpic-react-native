@@ -5,9 +5,13 @@ import * as Permissions from "expo-permissions";
 
 import config from "../../config";
 
+import UserData from "../../store/UserData";
 import locationIcon from "../../../assets/location.png";
+import { useEffect } from "react";
 
 export default function Login() {
+    const userStoreAccess = new UserData();
+
     const [userData, setUserData] = useState({
         name: "",
         location: "",
@@ -15,6 +19,16 @@ export default function Login() {
     });
 
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        userStoreAccess.getData().then(({name, location, phone}) => {
+            setUserData({
+                name: name ? name : "",
+                location: location ? location : "",
+                phone: phone ? phone : ""
+            });
+        });
+    }, []);
 
     const getLocationAsync = async () => {
         const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -40,18 +54,33 @@ export default function Login() {
         setUserData({...userData, location: finalLocation});
     };
 
+    const handleSave = () => {
+        userStoreAccess.setData(userData);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>medpic</Text>
             <View style={styles.input}>
-                <TextInput onChangeText={(name) => (setUserData({...userData, name}))} placeholder="Name..." placeholderTextColor="#003f5c" style={styles.inputText} />
+                <TextInput
+                    value={userData.name}
+                    onChangeText={(name) => (setUserData({...userData, name}))} 
+                    placeholder="Name..." 
+                    placeholderTextColor={config.colors.inputPlaceHolder} 
+                    style={styles.inputText} />
             </View>
             <View style={styles.input}>
-                <TextInput onChangeText={(phone) => (setUserData({...userData, phone}))} placeholder="Phone Number..." placeholderTextColor="#003f5c" style={styles.inputText} />
+                <TextInput 
+                    value={userData.phone}
+                    onChangeText={(phone) => (setUserData({...userData, phone}))}
+                    placeholder="Phone Number..."
+                    placeholderTextColor={config.colors.inputPlaceHolder}
+                    style={styles.inputText} />
             </View>
             <View style={styles.locationWrapper}>
                 <View style={styles.input}>
-                    <TextInput 
+                    <TextInput
+                        value={userData.location}
                         onChangeText={(location) => (setUserData({...userData, location}))} 
                         value={userData.location}
                         placeholder="City, Country..."
@@ -64,7 +93,7 @@ export default function Login() {
                 </TouchableOpacity>
             </View>
             
-            <TouchableOpacity style={styles.loginBtn}>
+            <TouchableOpacity onPress={handleSave} style={styles.loginBtn}>
                 <Text style={styles.loginText}>save</Text>
             </TouchableOpacity>
         </View>
