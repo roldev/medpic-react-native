@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from "react-native";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 
 import config from "../../config";
 
-import UserData from "../../store/UserData";
 import locationIcon from "../../../assets/location.png";
-import { useEffect } from "react";
+import UserData from "../../store/UserData";
+import AppPermissions from "../../utils/AppPermissions";
 
-export default function Login() {
+export default function Login({ navigation }) {
     const userStoreAccess = new UserData();
+    const appPermissions = new AppPermissions();
 
     const [userData, setUserData] = useState({
         name: "",
@@ -31,8 +32,8 @@ export default function Login() {
     }, []);
 
     const getLocationAsync = async () => {
-        const { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if(status !== "granted") {
+        const isGranted = await appPermissions.requestPermissionsAsync(Permissions.LOCATION);
+        if(!isGranted) {
             setError("Permission to access location was denied");
             return;
         }
@@ -56,6 +57,7 @@ export default function Login() {
 
     const handleSave = () => {
         userStoreAccess.setData(userData);
+        navigation.navigate("ECGCapture");
     };
 
     return (
@@ -82,7 +84,6 @@ export default function Login() {
                     <TextInput
                         value={userData.location}
                         onChangeText={(location) => (setUserData({...userData, location}))} 
-                        value={userData.location}
                         placeholder="City, Country..."
                         placeholderTextColor="#003f5c" 
                         style={styles.inputText} />

@@ -5,6 +5,9 @@ export default config = {
         secondary: "#003f5c",
         inputBG: "#465881",
         inputPlaceHolder: "#003f5c",
+        error: "red",
     },
-    baseUrl: ""
+    urls: {
+        uploadimage: "http://132.68.36.204:443/upload",
+    }
 };
