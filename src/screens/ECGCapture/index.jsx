@@ -7,13 +7,14 @@ import 'react-native-get-random-values'; // must come before uuid
 import { v4 as uuidv4 } from 'uuid';
 
 import config from "../../config";
-import { objectToFormData } from "../../utils/network";
 
 import AppPermissions, { Permissions } from "../../utils/AppPermissions";
 import NoPermission from "./components/NoPermission";
 
-export default function ECGCapture({ navigation }) {
+export default function ECGCapture({ route, navigation }) {
     const appPermissions = new AppPermissions();
+    
+    const { userStoreAccess } = route.params;
 
     const [permissions, setPermissions] = useState(() => ({
         camera: appPermissions.checkPermissionsAsync(Permissions.CAMERA),
@@ -88,6 +89,8 @@ export default function ECGCapture({ navigation }) {
     const send = async () => {
         const filename = uuidv4() + ".jpg";
         
+        const userData = await userStoreAccess.getData();
+
         const formData = new FormData();
         formData.append("picture", {
             uri: image,
@@ -96,6 +99,9 @@ export default function ECGCapture({ navigation }) {
         });
         formData.append("filename", filename);
         formData.append("requestDataForAnalyze", JSON.stringify({
+            userName: userData.name,
+            userPhone: userData.phone,
+            userPlace: userData.location,
             filename: filename,
             selectedItem: selectedDiag,
             customtype: customDiag,
@@ -109,27 +115,43 @@ export default function ECGCapture({ navigation }) {
             body: formData
         })
             .then((res) => {
-                const alertMsg = res.ok ? "Image Sent Successfully" : "There was an error sending";
-                
                 setImage(null);
                 setSelectedDiag("");
                 setCustomDiag(null);
-
-                Alert.alert(alertMsg,
-                "",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => {}
-                    }
-                ]);
 
                 if(!res.ok) {
                     console.error({
                         status: res.status,
                         headers: res.headers
                     });
+
+                    const alertHeader = "There was an error sending";
+                    Alert.alert(alertHeader,
+                        "",
+                        [
+                            {
+                                text: "OK",
+                                onPress: () => {}
+                            }
+                        ]);
+
+                    return;
                 }
+                
+                res.json()
+                    .then((res) => {
+                        const alertHeader = "Image Sent Successfully";
+                        const alertMsg = `Heart Rate: ${res.data[1]}\nDiagnsis: ${res.data[3]}`;
+
+                        Alert.alert(alertHeader,
+                            alertMsg,
+                            [
+                                {
+                                    text: "OK",
+                                    onPress: () => {}
+                                }
+                            ]);
+                    });
             })
             .catch((error) => {console.error(error)});
     };

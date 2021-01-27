@@ -8,6 +8,6 @@ export default config = {
         error: "red",
     },
     urls: {
-        uploadimage: "http://132.68.36.204:443/upload",
+        uploadimage: "http://132.68.36.204/upload",
     }
 };
