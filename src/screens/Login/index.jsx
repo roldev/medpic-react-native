@@ -57,7 +57,7 @@ export default function Login({ navigation }) {
 
     const handleSave = () => {
         userStoreAccess.setData(userData);
-        navigation.navigate("ECGCapture", {"userStoreAccess": userStoreAccess});
+        navigation.navigate("SelectAction");
     };
 
     return (
