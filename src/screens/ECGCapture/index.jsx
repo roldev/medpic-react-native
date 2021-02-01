@@ -1,10 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { Camera } from "expo-camera";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from "@expo/vector-icons";
+import * as ImageManipulator from "expo-image-manipulator";
+
+import config from "../../config";
 
 export default function ECGCapture({ navigation }) {
     const cameraRef = useRef(null)
+
+    const cropAsync = (image, originX, originY, width, height) => {
+        return ImageManipulator.manipulateAsync(
+            image.uri,
+            [{ crop: {
+                originX: originX,
+                originY: originY,
+                width: width,
+                height: height
+            }}],
+            { compress: 1, format: ImageManipulator.SaveFormat.PNG });
+    };
 
     const takePicture = () => {
         if(!cameraRef) {
@@ -15,6 +30,14 @@ export default function ECGCapture({ navigation }) {
             quality: 1,
             exif: true,
         })
+            .then((image) => {
+                const x = 170;
+                const y = 200;
+                const width = 3200;
+                const height = 2000;
+                console.log(x, y, width, height, image);
+                return cropAsync(image, x, y, width, height);
+            })
             .then((image) => {
                 navigation.navigate("Preview", { image });
             });
@@ -31,6 +54,7 @@ export default function ECGCapture({ navigation }) {
                 ref={cameraRef}
                 style={styles.camera}
                 >
+                <View style={styles.cropBox} ></View>
                 <View style={styles.buttonContainer}>
                     <FontAwesome.Button 
                         name="camera" 
@@ -49,7 +73,8 @@ const styles = StyleSheet.create({
     },
 
     camera: {
-        flex: 1
+        flex: 1,
+        justifyContent: "center",
     },
 
     buttonContainer: {
@@ -58,5 +83,16 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end"
     },
+
+    cropBox: {
+        position: "absolute",
+        backgroundColor: "transparent",
+        borderColor: config.colors.primary,
+        borderWidth: 2,
+        borderRadius: 5,
+        alignSelf: "center",
+        width: "70%",
+        height: "70%"
+    }
 
 });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
-import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImageManipulator from "expo-image-manipulator";
 
 import rotateRightIcon from "../../../assets/rotateright.png";
 import rotateLeftIcon from "../../../assets/rotateleft.png";
