@@ -1,14 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import config from '../../../config';
+import config from "../config";
 
-export default function ECGCapture({ error, errorDetails}) {
+export default function ECGCapture({ error, errorDetails }) {
     return (
         <View style={styles.container}>
             <Text style={styles.error}>{error}</Text>
             <Text style={styles.errorDetails}>{errorDetails}</Text>
-        </View>  
+        </View>
     );
 }
 
@@ -27,5 +27,5 @@ const styles = StyleSheet.create({
     errorDetails: {
         fontSize: 15,
         color: config.colors.error,
-    }
+    },
 });

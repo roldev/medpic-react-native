@@ -33,7 +33,8 @@
     "react-native-svg-transformer": "^0.14.3",
     "react-native-web": "~0.13.12",
     "uuid": "^8.3.2",
-    "expo-image-manipulator": "~8.4.0"
+    "expo-image-manipulator": "~8.4.0",
+    "expo-av": "~8.7.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"

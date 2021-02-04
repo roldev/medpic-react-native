@@ -2,45 +2,28 @@ import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
-import AppPermissions, { Permissions } from "../../utils/AppPermissions";
-import NoPermission from "./components/NoPermission";
+import AppPermissions from "../../utils/AppPermissions";
+import NoPermission from "../../components/NoPermission";
 
 import config from "../../config";
 
 export default function SelectAction({ navigation }) {
     const appPermissions = new AppPermissions();
 
-    const [permissions, setPermissions] = useState(() => ({
-        camera: appPermissions.checkPermissionsAsync(Permissions.CAMERA),
-        mediaLibrary: appPermissions.checkPermissionsAsync(
-            Permissions.MEDIA_LIBRARY
-        ),
-    }));
+    const [permissions, setPermissions] = useState({
+        camera: false,
+        mediaLibrary: false,
+    });
 
     useEffect(() => {
-        getCameraPermission();
-        getmediaLibraryPermissions();
+        const cameraPermission = appPermissions.getCameraPermission();
+        const mediaLibraryPermission = appPermissions.getMediaLibraryPermission();
+
+        setPermissions({
+            camera: cameraPermission,
+            mediaLibrary: mediaLibraryPermission,
+        });
     }, []);
-
-    const getCameraPermission = async () => {
-        const isGranted = await appPermissions.requestPermissionsAsync(
-            Permissions.CAMERA
-        );
-        setPermissions({
-            ...permissions,
-            camera: isGranted,
-        });
-    };
-
-    const getmediaLibraryPermissions = async () => {
-        const isGranted = await appPermissions.requestPermissionsAsync(
-            Permissions.MEDIA_LIBRARY
-        );
-        setPermissions({
-            ...permissions,
-            mediaLibrary: isGranted,
-        });
-    };
 
     if (!permissions.camera && !permissions.mediaLibrary) {
         return (
@@ -55,6 +38,7 @@ export default function SelectAction({ navigation }) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 1,
+            allowsEditing: true,
         });
 
         if (!result.cancelled) {

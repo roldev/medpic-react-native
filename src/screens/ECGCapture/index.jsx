@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Dimensions, Alert } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Alert } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImageManipulator from "expo-image-manipulator";
 
 import ResizableRectangle from "./components/ResizableRectangle";
 
+import AppPermissions from "../../utils/AppPermissions";
 import config from "../../config";
 
 export default function ECGCapture({ navigation }) {
@@ -40,17 +41,18 @@ export default function ECGCapture({ navigation }) {
                 exif: true,
             })
             .then((image) => {
-                const xRatio = (innerRect.x / Dimensions.get("window").width);
+                const xRatio = innerRect.x / Dimensions.get("window").width;
                 let originX = image.width * xRatio;
-                
 
-                const widthRatio = innerRect.width / Dimensions.get("window").width;
+                const widthRatio =
+                    innerRect.width / Dimensions.get("window").width;
                 let width = image.width * widthRatio;
 
-                const yRatio = (innerRect.y / Dimensions.get("window").height);
-                let originY = (image.height * yRatio) + 100;
+                const yRatio = innerRect.y / Dimensions.get("window").height;
+                let originY = (image.height + 100) * yRatio;
 
-                const heightRatio = innerRect.height / Dimensions.get("window").height;
+                const heightRatio =
+                    innerRect.height / Dimensions.get("window").height;
                 let height = image.height * heightRatio;
 
                 return cropAsync(image, originX, originY, width, height);
@@ -60,15 +62,46 @@ export default function ECGCapture({ navigation }) {
             })
             .catch((error) => {
                 console.error(error);
-                Alert.alert("Please place bounding box within picture",
-                "",
+                Alert.alert("Please place bounding box within picture", "", [
+                    {
+                        text: "OK",
+                        onPress: () => {},
+                    },
+                ]);
+            });
+    };
+
+    const recordVideo = () => {
+        const appPermissions = new AppPermissions();
+        const audioRecordingPermission = appPermissions.getAudioRecordingPermission();
+        if (!audioRecordingPermission) {
+            Alert.alert(
+                "Please enable Audio Recording to record Video",
+                "Although we record muted video, the permission is required",
                 [
                     {
                         text: "OK",
-                        onPress: () => {}
-                    }
-                ]);
+                        onPress: () => {},
+                    },
+                ]
+            );
+
+            return;
+        }
+
+        cameraRef.current
+            .recordAsync({
+                quality: Camera.Constants.VideoQuality["2160p"],
+                maxDuration: 10,
+                mute: true,
+            })
+            .then((video) => {
+                navigation.navigate("Preview", { video });
             });
+    };
+
+    const stopVideoRecord = () => {
+        cameraRef.current.stopRecording();
     };
 
     return (
@@ -83,6 +116,7 @@ export default function ECGCapture({ navigation }) {
                 style={styles.camera}
             >
                 <View style={styles.overlayWrapper}>
+                    <Text style={styles.leftSide}>This is the left side</Text>
                     <ResizableRectangle
                         rect={innerRect}
                         setRect={setInnerRect}
@@ -91,6 +125,8 @@ export default function ECGCapture({ navigation }) {
                     <FontAwesome.Button
                         name="camera"
                         onPress={takePicture}
+                        onLongPress={recordVideo}
+                        onPressOut={stopVideoRecord}
                         backgroundColor="transparent"
                         size={50}
                     />
@@ -115,5 +151,13 @@ const styles = StyleSheet.create({
         backgroundColor: "transparent",
         alignItems: "center",
         justifyContent: "flex-end",
+    },
+
+    leftSide: {
+        top: 50,
+        position: "absolute",
+        alignSelf: "center",
+        color: config.colors.secondary,
+        backgroundColor: config.colors.primary,
     },
 });
