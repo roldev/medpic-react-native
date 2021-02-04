@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Image, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as Network from 'expo-network';
 import 'react-native-get-random-values'; // must come before uuid
