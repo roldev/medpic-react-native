@@ -26,7 +26,7 @@ export default function Preview({ route, navigation }) {
     const [image, setImage] = useState(route.params.image);
     const [video, setVideo] = useState(route.params.video);
 
-    const [selectedDiag, setSelectedDiag] = useState("");
+    const [selectedDiag, setSelectedDiag] = useState([]);
     const [customDiag, setCustomDiag] = useState(null);
 
     const [IP, setIP] = useState("");
@@ -62,11 +62,22 @@ export default function Preview({ route, navigation }) {
         const userData = await userStoreAccess.getData();
 
         const formData = new FormData();
-        formData.append("picture", {
-            uri: image,
-            name: filename,
-            type: "image/jpg",
-        });
+
+        if(image) {
+            formData.append("picture", {
+                uri: image.uri,
+                name: filename,
+                type: "image/jpg",
+            });
+        }
+        if(video) {
+            formData.append("video", {
+                uri: video.uri,
+                name: filename,
+                type: "video/mp4",
+            });
+        }
+        
         formData.append("filename", filename);
         formData.append(
             "requestDataForAnalyze",
@@ -75,7 +86,7 @@ export default function Preview({ route, navigation }) {
                 userPhone: userData.phone,
                 userPlace: userData.location,
                 filename: filename,
-                selectedItem: selectedDiag,
+                selectedItem: selectedDiag.join(", "),
                 customtype: customDiag,
                 comment: "",
                 angle: 0,
@@ -88,10 +99,6 @@ export default function Preview({ route, navigation }) {
             body: formData,
         })
             .then((res) => {
-                setImage(null);
-                setSelectedDiag("");
-                setCustomDiag(null);
-
                 if (!res.ok) {
                     console.error({
                         status: res.status,
@@ -109,6 +116,10 @@ export default function Preview({ route, navigation }) {
                     return;
                 }
 
+                setImage(null);
+                setSelectedDiag([]);
+                setCustomDiag(null);
+
                 res.json().then((res) => {
                     const alertHeader = "Image Sent Successfully";
                     const alertMsg = `Heart Rate: ${res.data[1]}\nDiagnsis: ${res.data[3]}`;
@@ -116,7 +127,7 @@ export default function Preview({ route, navigation }) {
                     Alert.alert(alertHeader, alertMsg, [
                         {
                             text: "OK",
-                            onPress: () => {},
+                            onPress: () => {navigation.navigate("SelectAction");},
                         },
                     ]);
                 });
@@ -125,7 +136,7 @@ export default function Preview({ route, navigation }) {
                 Alert.alert("There was an error sending", "", [
                     {
                         text: "OK",
-                        onPress: () => {},
+                        onPress: () => {navigation.navigate("SelectAction");},
                     },
                 ]);
                 console.error(error);
@@ -135,7 +146,7 @@ export default function Preview({ route, navigation }) {
     if (!image && !video) {
         return <Text>No video or image supplied to screen</Text>;
     }
-    console.log(video);
+    
     return (
         <View style={styles.container}>
             <View style={styles.previewWrapper}>

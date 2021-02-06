@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     Alert,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import MultiSelect from "react-native-multiple-select";
+import config from "../../../config";
 
 export default function DiagnosisPicker({
     selectedDiag,
@@ -16,44 +17,45 @@ export default function DiagnosisPicker({
     customDiag,
     setCustomDiag,
 }) {
+    const items = [
+        { id: "Uknown", name: "Uknown" },
+        { id: "Normal", name: "Normal" },
+        { id: "Atrial fibrillation", name: "Atrial fibrillation" },
+        { id: "I-AVB", name: "I-AVB" },
+        { id: "RBBB", name: "RBBB" },
+        { id: "Sinus Tachycardia", name: "Sinus Tachycardia" },
+        { id: "ST-Changes, nonspecific", name: "ST-Changes, nonspecific" },
+        { id: "Other ", name: "Other " }
+    ];
+
     return (
         <View style={styles.pickerWrapper}>
-            <Picker
-                selectedValue={selectedDiag}
-                style={styles.dropDown}
-                onValueChange={(val) => {
-                    setSelectedDiag(val);
-                }}
-            >
-                <Picker.Item label="Choose Diagnosis" value="placeholder" />
-                <Picker.Item label="Uknown" value="unknown" />
-                <Picker.Item label="Normal" value="normal" />
-                <Picker.Item
-                    label="Atrial fibrillation"
-                    value="atrial fibrillation"
-                />
-                <Picker.Item label="I-AVB" value="i-avb" />
-                <Picker.Item label="RBBB" value="rbbb" />
-                <Picker.Item
-                    label="Sinus Tachycardia"
-                    value="sinus tachycardia"
-                />
-                <Picker.Item
-                    label="ST-Changes, nonspecific"
-                    value="st-changes, nonspecific"
-                />
-                <Picker.Item label="Test Category" value="test category" />
-                <Picker.Item label="Other" value="other" />
-            </Picker>
+            <MultiSelect
+                items={items}
+                uniqueKey="id"
+                onSelectedItemsChange={(selectedItems) => {setSelectedDiag(selectedItems)}}
+                selectedItems={selectedDiag}
+                
+            />
 
             {selectedDiag === "other" && (
                 <View style={styles.input}>
                     <TextInput
                         value={customDiag}
                         onChangeText={(diag) => setCustomDiag(diag)}
-                        placeholder="Other diagnosis"
+                        placeholder="Other diagnoses"
                         placeholderTextColor="#003f5c"
-                        style={styles.inputText}
+                        
+                        tagRemoveIconColor="#CCC"
+                        tagBorderColor="#CCC"
+                        tagTextColor="#CCC"
+                        selectedItemTextColor="red"
+                        selectedItemIconColor={config.colors.secondary}
+                        itemTextColor="#000"
+                        displayKey="name"
+                        searchInputStyle={{color: '#CCC'}}
+                        submitButtonColor={config.colors.primary}
+                        submitButtonText="Close"
                     />
                 </View>
             )}
@@ -63,15 +65,7 @@ export default function DiagnosisPicker({
 
 const styles = StyleSheet.create({
     pickerWrapper: {
-        marginBottom: 70,
-        alignItems: "center",
-    },
-
-    dropDown: {
-        backgroundColor: config.colors.primary,
-        textAlign: "center",
-        color: "white",
-        width: "50%",
-        zIndex: 200,
+        flex: 1,
+        zIndex: 11
     },
 });
