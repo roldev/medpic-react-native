@@ -25,7 +25,7 @@ export default function DiagnosisPicker({
         { id: "RBBB", name: "RBBB" },
         { id: "Sinus Tachycardia", name: "Sinus Tachycardia" },
         { id: "ST-Changes, nonspecific", name: "ST-Changes, nonspecific" },
-        { id: "Other ", name: "Other " }
+        { id: "Other", name: "Other" }
     ];
 
     return (
@@ -38,7 +38,7 @@ export default function DiagnosisPicker({
                 
             />
 
-            {selectedDiag === "other" && (
+            {selectedDiag.indexOf("Other") !== -1 && (
                 <View style={styles.input}>
                     <TextInput
                         value={customDiag}
@@ -56,6 +56,8 @@ export default function DiagnosisPicker({
                         searchInputStyle={{color: '#CCC'}}
                         submitButtonColor={config.colors.primary}
                         submitButtonText="Close"
+
+                        style={styles.customDiag}
                     />
                 </View>
             )}
@@ -66,6 +68,18 @@ export default function DiagnosisPicker({
 const styles = StyleSheet.create({
     pickerWrapper: {
         flex: 1,
-        zIndex: 11
+        zIndex: 1,
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        bottom: 70
     },
+
+    customDiag: {
+        bottom: 0,
+        backgroundColor: "white",
+        height: 40
+    }
 });

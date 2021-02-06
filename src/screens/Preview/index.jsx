@@ -242,6 +242,10 @@ const styles = StyleSheet.create({
         height: 50,
     },
 
+    rotateButton: {
+        zIndex: 10
+    },
+
     button: {
         alignItems: "center",
         justifyContent: "center",
@@ -249,6 +253,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         height: 50,
         backgroundColor: config.colors.primary,
+        zIndex: 3,
     },
 
     buttonText: {
