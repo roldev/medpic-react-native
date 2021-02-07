@@ -19,7 +19,7 @@
         "ios": {
             "buildNumber": "1.1.0",
             "supportsTablet": true,
-            "bundleIdentifier": "medpic"
+            "bundleIdentifier": "com.medpic.medpic"
         },
         "android": {
             "versionCode": 1,
