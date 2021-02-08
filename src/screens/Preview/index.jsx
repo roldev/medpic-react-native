@@ -94,7 +94,7 @@ export default function Preview({ route, navigation }) {
             })
         );
 
-        fetch(config.urls.uploadimage, {
+        fetch(`${config.urls.baseUrl}${config.urls.paths.uploadimage}`, {
             method: "POST",
             body: formData,
         })

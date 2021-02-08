@@ -8,6 +8,10 @@ export default config = {
         error: "red",
     },
     urls: {
-        uploadimage: "http://132.68.36.204/upload",
+        baseUrl: "http://132.68.36.204/",
+        paths: {
+            uploadimage: "upload",
+            diagnosisOptions: "diagnosis-options"
+        }
     }
 };

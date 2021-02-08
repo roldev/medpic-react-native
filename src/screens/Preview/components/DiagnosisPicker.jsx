@@ -17,25 +17,29 @@ export default function DiagnosisPicker({
     customDiag,
     setCustomDiag,
 }) {
-    const items = [
-        { id: "Uknown", name: "Uknown" },
-        { id: "Normal", name: "Normal" },
-        { id: "Atrial fibrillation", name: "Atrial fibrillation" },
-        { id: "I-AVB", name: "I-AVB" },
-        { id: "RBBB", name: "RBBB" },
-        { id: "Sinus Tachycardia", name: "Sinus Tachycardia" },
-        { id: "ST-Changes, nonspecific", name: "ST-Changes, nonspecific" },
-        { id: "Other", name: "Other" }
-    ];
+    const [items, setItems] = useState([{ id: "Other", name: "Other" }]);
+
+    useEffect(() => {
+        fetch(`${config.urls.baseUrl}${config.urls.paths.diagnosisOptions}`)
+            .then((res) => res.json())
+            .then((diagnosisOptions) => {
+                const initialItems = items;
+                const serverItems = Object.keys(
+                    diagnosisOptions
+                ).map((key) => ({ id: key, name: diagnosisOptions[key] }));
+                setItems(serverItems.concat(initialItems));
+            });
+    }, []);
 
     return (
         <View style={styles.pickerWrapper}>
             <MultiSelect
                 items={items}
                 uniqueKey="id"
-                onSelectedItemsChange={(selectedItems) => {setSelectedDiag(selectedItems)}}
+                onSelectedItemsChange={(selectedItems) => {
+                    setSelectedDiag(selectedItems);
+                }}
                 selectedItems={selectedDiag}
-                
             />
 
             {selectedDiag.indexOf("Other") !== -1 && (
@@ -45,7 +49,6 @@ export default function DiagnosisPicker({
                         onChangeText={(diag) => setCustomDiag(diag)}
                         placeholder="Other diagnoses"
                         placeholderTextColor="#003f5c"
-                        
                         tagRemoveIconColor="#CCC"
                         tagBorderColor="#CCC"
                         tagTextColor="#CCC"
@@ -53,10 +56,9 @@ export default function DiagnosisPicker({
                         selectedItemIconColor={config.colors.secondary}
                         itemTextColor="#000"
                         displayKey="name"
-                        searchInputStyle={{color: '#CCC'}}
+                        searchInputStyle={{ color: "#CCC" }}
                         submitButtonColor={config.colors.primary}
                         submitButtonText="Close"
-
                         style={styles.customDiag}
                     />
                 </View>
@@ -74,12 +76,12 @@ const styles = StyleSheet.create({
         height: "100%",
         flexDirection: "column",
         justifyContent: "flex-end",
-        bottom: 70
+        bottom: 70,
     },
 
     customDiag: {
         bottom: 0,
         backgroundColor: "white",
-        height: 40
-    }
+        height: 40,
+    },
 });
