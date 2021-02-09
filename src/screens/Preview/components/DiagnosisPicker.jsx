@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    View,
-    Image,
-    Text,
-    TextInput,
-    StyleSheet,
-    TouchableOpacity,
-    Alert,
-} from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import config from "../../../config";
 
@@ -24,9 +16,7 @@ export default function DiagnosisPicker({
             .then((res) => res.json())
             .then((diagnosisOptions) => {
                 const initialItems = items;
-                const serverItems = Object.keys(
-                    diagnosisOptions
-                ).map((key) => ({ id: key, name: diagnosisOptions[key] }));
+                const serverItems = diagnosisOptions.map(({id, name}) => ({ id: id.toString(), name: name }));
                 setItems(serverItems.concat(initialItems));
             });
     }, []);
