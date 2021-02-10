@@ -31,6 +31,10 @@ export default function Preview({ route, navigation }) {
 
     const [IP, setIP] = useState("");
 
+    const rectPixels = route.params.rectPixels
+        ? { overlay: route.params.rectPixels }
+        : {};
+
     useEffect(() => {
         Network.getIpAddressAsync().then((localIP) => {
             setIP(localIP);
@@ -63,35 +67,40 @@ export default function Preview({ route, navigation }) {
 
         const formData = new FormData();
 
-        if(image) {
+        if (image) {
             formData.append("picture", {
                 uri: image.uri,
                 name: filename,
                 type: "image/jpg",
             });
         }
-        if(video) {
+        if (video) {
             formData.append("video", {
                 uri: video.uri,
                 name: filename,
                 type: "video/mp4",
             });
         }
-        
+
         formData.append("filename", filename);
         formData.append(
             "requestDataForAnalyze",
-            JSON.stringify({
-                userName: userData.name,
-                userPhone: userData.phone,
-                userPlace: userData.location,
-                filename: filename,
-                selectedItem: selectedDiag.join(", "),
-                customtype: customDiag,
-                comment: "",
-                angle: 0,
-                clientIP: IP,
-            })
+            JSON.stringify(
+                Object.assign(
+                    {
+                        userName: userData.name,
+                        userPhone: userData.phone,
+                        userPlace: userData.location,
+                        filename: filename,
+                        selectedItem: selectedDiag.join(", "),
+                        customtype: customDiag,
+                        comment: "",
+                        angle: 0,
+                        clientIP: IP,
+                    },
+                    rectPixels
+                )
+            )
         );
 
         fetch(`${config.urls.baseUrl}${config.urls.paths.uploadimage}`, {
@@ -127,7 +136,9 @@ export default function Preview({ route, navigation }) {
                     Alert.alert(alertHeader, alertMsg, [
                         {
                             text: "OK",
-                            onPress: () => {navigation.navigate("SelectAction");},
+                            onPress: () => {
+                                navigation.navigate("SelectAction");
+                            },
                         },
                     ]);
                 });
@@ -136,7 +147,9 @@ export default function Preview({ route, navigation }) {
                 Alert.alert("There was an error sending", "", [
                     {
                         text: "OK",
-                        onPress: () => {navigation.navigate("SelectAction");},
+                        onPress: () => {
+                            navigation.navigate("SelectAction");
+                        },
                     },
                 ]);
                 console.error(error);
@@ -146,7 +159,7 @@ export default function Preview({ route, navigation }) {
     if (!image && !video) {
         return <Text>No video or image supplied to screen</Text>;
     }
-    
+
     return (
         <View style={styles.container}>
             <View style={styles.previewWrapper}>
@@ -243,7 +256,7 @@ const styles = StyleSheet.create({
     },
 
     rotateButton: {
-        zIndex: 10
+        zIndex: 10,
     },
 
     button: {

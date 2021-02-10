@@ -13,21 +13,25 @@ export default function ECGCapture({ navigation }) {
     const cameraRef = useRef(null);
     const [innerRect, setInnerRect] = useState({});
 
-    const cropAsync = (image, originX, originY, width, height) => {
-        return ImageManipulator.manipulateAsync(
-            image.uri,
-            [
-                {
-                    crop: {
-                        originX: originY,
-                        originY: originX,
-                        width: height,
-                        height: width,
-                    },
-                },
-            ],
-            { compress: 1, format: ImageManipulator.SaveFormat.PNG }
-        );
+    const calcRectPixels = (imageWidth, imageHeight) => {
+        const xRatio = innerRect.x / Dimensions.get("window").width;
+        let originX = imageWidth * xRatio;
+
+        const widthRatio = innerRect.width / Dimensions.get("window").width;
+        let width = imageWidth * widthRatio;
+
+        const yRatio = innerRect.y / Dimensions.get("window").height;
+        let originY = (imageHeight + 100) * yRatio;
+
+        const heightRatio = innerRect.height / Dimensions.get("window").height;
+        let height = imageHeight * heightRatio;
+
+        return {
+            originX: originY,
+            originY: originX,
+            width: width,
+            height: height,
+        };
     };
 
     const takePicture = () => {
@@ -41,24 +45,7 @@ export default function ECGCapture({ navigation }) {
                 exif: true,
             })
             .then((image) => {
-                const xRatio = innerRect.x / Dimensions.get("window").width;
-                let originX = image.width * xRatio;
-
-                const widthRatio =
-                    innerRect.width / Dimensions.get("window").width;
-                let width = image.width * widthRatio;
-
-                const yRatio = innerRect.y / Dimensions.get("window").height;
-                let originY = (image.height + 100) * yRatio;
-
-                const heightRatio =
-                    innerRect.height / Dimensions.get("window").height;
-                let height = image.height * heightRatio;
-
-                return cropAsync(image, originX, originY, width, height);
-            })
-            .then((image) => {
-                navigation.navigate("Preview", { image });
+                navigation.navigate("Preview", { image, rectPixels: calcRectPixels(image.width, image.height) });
             })
             .catch((error) => {
                 console.error(error);
@@ -96,7 +83,7 @@ export default function ECGCapture({ navigation }) {
                 mute: true,
             })
             .then((video) => {
-                navigation.navigate("Preview", { video });
+                navigation.navigate("Preview", { video, rectPixels: calcRectPixels(video.width, video.height) });
             });
     };
 
