@@ -31,5 +31,17 @@
         "web": {
             "favicon": "./assets/favicon.png"
         }
+    },
+    "builds": {
+        "android": {
+            "release": {
+                "workflow": "managed"
+            }
+        },
+        "ios": {
+            "release": {
+                "workflow": "managed"
+            }
+        }
     }
 }
