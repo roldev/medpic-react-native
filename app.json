@@ -19,10 +19,11 @@
         "ios": {
             "buildNumber": "1.1.0",
             "supportsTablet": true,
-            "bundleIdentifier": "com.medpic.medpic"
+            "bundleIdentifier": "com.medpic.app"
         },
         "android": {
             "versionCode": 1,
+            "package": "com.medpic.app",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#FFFFFF"
