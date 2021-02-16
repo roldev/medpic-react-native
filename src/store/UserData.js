@@ -1,4 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export const USER_NAME_KEY = "USER_NAME_KEY";
+export const USER_PHONE_KEY = "USER_PHONE_KEY";
+export const USER_LOCATION_KEY = "USER_LOCATION_KEY";
+export const USER_HAS_VISITED_INTRO_KEY = "USER_NAME_KEY";
 
 export default class UserData {
     constructor() {
@@ -23,8 +28,12 @@ export default class UserData {
         return this.getData()[key];
     }
 
-    setData(userData) {
-        AsyncStorage.setItem(this.storeUserKey, JSON.stringify(userData));
+    async setData(userData) {
+        const currentData = await this.getData();
+        AsyncStorage.setItem(this.storeUserKey, JSON.stringify({
+            ...currentData,
+            ...userData
+        }));
     }
 
     setVal(key, val) {

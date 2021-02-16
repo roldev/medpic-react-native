@@ -6,7 +6,7 @@ import * as Permissions from "expo-permissions";
 import config from "../../config";
 
 import locationIcon from "../../../assets/location.png";
-import UserData from "../../store/UserData";
+import UserData, { USER_NAME_KEY, USER_PHONE_KEY, USER_LOCATION_KEY, USER_HAS_VISITED_INTRO_KEY } from "../../store/UserData";
 import AppPermissions from "../../utils/AppPermissions";
 
 export default function Login({ navigation }) {
@@ -22,11 +22,11 @@ export default function Login({ navigation }) {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        userStoreAccess.getData().then(({name, location, phone}) => {
+        userStoreAccess.getData().then((data) => {
             setUserData({
-                name: name ? name : "",
-                location: location ? location : "",
-                phone: phone ? phone : ""
+                name: data[USER_NAME_KEY] ? data[USER_NAME_KEY] : "",
+                location: data[USER_LOCATION_KEY] ? data[USER_LOCATION_KEY] : "",
+                phone: data[USER_PHONE_KEY] ? data[USER_PHONE_KEY] : ""
             });
         });
     }, []);
@@ -56,8 +56,17 @@ export default function Login({ navigation }) {
     };
 
     const handleSave = () => {
-        userStoreAccess.setData(userData);
-        navigation.navigate("SelectAction");
+        userStoreAccess.setData({
+            USER_NAME_KEY: userData.name, 
+            USER_PHONE_KEY: userData.phone, 
+            USER_LOCATION_KEY: userData.location
+        });
+        
+        userStoreAccess.getVal(USER_HAS_VISITED_INTRO_KEY)
+            .then((hasVisitedIntro) => {
+                const nextPage = hasVisitedIntro ? "SelectAction" : "Explanation";
+                navigation.navigate(nextPage);
+            })
     };
 
     return (
