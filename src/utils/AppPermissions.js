@@ -9,6 +9,14 @@ export default class AppPermissions {
         return (status === 'granted');
     }
 
+    async getLocationPermission() {
+        const isGranted = await this.requestPermissionAsync(
+            Permissions.LOCATION
+        );
+
+        return isGranted;
+    }
+
     async getCameraPermission() {
         const isGranted = await this.requestPermissionAsync(
             Permissions.CAMERA

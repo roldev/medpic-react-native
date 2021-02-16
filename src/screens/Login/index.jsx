@@ -32,7 +32,7 @@ export default function Login({ navigation }) {
     }, []);
 
     const getLocationAsync = async () => {
-        const isGranted = await appPermissions.requestPermissionsAsync(Permissions.LOCATION);
+        const isGranted = await appPermissions.getLocationPermission(Permissions.LOCATION);
         if(!isGranted) {
             setError("Permission to access location was denied");
             return;

@@ -63,12 +63,14 @@ const styles = StyleSheet.create({
         color: config.colors.primary,
         fontSize: 19,
         marginBottom: 20,
+        textAlign: "center",
     },
 
     explanationBlock: {
         flex: 1,
         flexDirection: "column",
         alignItems: "center",
+        marginBottom: 50,
     },
     
     buttonBlock: {

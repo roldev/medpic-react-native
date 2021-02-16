@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Dimensions, Alert } from "react-native";
+import { View, Text, Animated, StyleSheet, Dimensions, Alert, Easing } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -12,6 +12,8 @@ import config from "../../config";
 export default function ECGCapture({ navigation }) {
     const cameraRef = useRef(null);
     const [innerRect, setInnerRect] = useState({});
+    const [isVideo, setIsVideo] = useState(false);
+    const [recordOpacityVal, setRecordOpacityVal] = useState(new Animated.Value(0));
 
     const calcRectPixels = (imageWidth, imageHeight) => {
         const xRatio = innerRect.x / Dimensions.get("window").width;
@@ -52,7 +54,7 @@ export default function ECGCapture({ navigation }) {
                 Alert.alert("Please place bounding box within picture", "", [
                     {
                         text: "OK",
-                        onPress: () => {},
+                        onPress: () => { },
                     },
                 ]);
             });
@@ -68,13 +70,16 @@ export default function ECGCapture({ navigation }) {
                 [
                     {
                         text: "OK",
-                        onPress: () => {},
+                        onPress: () => { },
                     },
                 ]
             );
 
             return;
         }
+
+        blinkWithFade();
+        setIsVideo(true);
 
         cameraRef.current
             .recordAsync({
@@ -83,12 +88,34 @@ export default function ECGCapture({ navigation }) {
                 mute: true,
             })
             .then((video) => {
+                setIsVideo(false);
                 navigation.navigate("Preview", { video, rectPixels: calcRectPixels(video.width, video.height) });
             });
     };
 
     const stopVideoRecord = () => {
         cameraRef.current.stopRecording();
+    };
+
+    const blinkWithFade = () => {
+        Animated.loop(Animated.sequence([
+            Animated.timing(recordOpacityVal, {
+                toValue: 1,
+                duration: 1000,
+                easing: Easing.linear,
+                useNativeDriver: true
+            }),
+            Animated.timing(recordOpacityVal, {
+                toValue: 0,
+                duration: 1000,
+                easing: Easing.linear,
+                useNativeDriver: true
+            })
+        ],
+        {
+            iterations: 10,
+            useNativeDriver: true
+        })).start();
     };
 
     return (
@@ -103,12 +130,19 @@ export default function ECGCapture({ navigation }) {
                 style={styles.camera}
             >
                 <View style={styles.overlayWrapper}>
-                    <Text style={styles.leftSide}>This is the left side</Text>
+                    <Text style={styles.leftSide}>This is the left side of the ECG plot</Text>
                     <ResizableRectangle
                         rect={innerRect}
                         setRect={setInnerRect}
                         externalStyle={{}}
                     />
+                    {
+                        isVideo ?
+                        <Animated.View style={[styles.recordingIndicator, {opacity: recordOpacityVal}]}></Animated.View>
+                            :
+                            null
+                    }
+                    
                     <FontAwesome.Button
                         name="camera"
                         onPress={takePicture}
@@ -131,6 +165,15 @@ const styles = StyleSheet.create({
     camera: {
         flex: 1,
         justifyContent: "center",
+    },
+
+    recordingIndicator: {
+        position: "absolute",
+        bottom: 80,
+        height: 50,
+        width: 50,
+        backgroundColor: "red",
+        borderRadius: 50,
     },
 
     overlayWrapper: {
