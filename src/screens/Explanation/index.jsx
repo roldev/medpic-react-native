@@ -4,11 +4,18 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import config from "../../config";
 
+import UserData, { USER_HAS_VISITED_INTRO_KEY } from "../../store/UserData";
+
 import boxExample from "../../../assets/boxExample.jpg";
 
-export default function ECGCapture({ navigation }) {
+export default function Explanation({ navigation }) {
 
-    const handleContinue = () => { navigation.navigate("ECGCapture"); };
+    const handleContinue = () => {
+        const userDataAccess = new UserData();
+        userDataAccess.setVal(USER_HAS_VISITED_INTRO_KEY, "true");
+
+        navigation.navigate("ECGCapture"); 
+    };
 
     return (
         <View style={styles.container}>

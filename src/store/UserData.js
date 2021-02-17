@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const USER_NAME_KEY = "USER_NAME_KEY";
 export const USER_PHONE_KEY = "USER_PHONE_KEY";
 export const USER_LOCATION_KEY = "USER_LOCATION_KEY";
-export const USER_HAS_VISITED_INTRO_KEY = "USER_NAME_KEY";
+export const USER_HAS_VISITED_INTRO_KEY = "USER_HAS_VISITED_INTRO_KEY";
 
 export default class UserData {
     constructor() {
@@ -25,7 +25,8 @@ export default class UserData {
     }
 
     async getVal(key) {
-        return this.getData()[key];
+        const data = await this.getData();
+        return data[key];
     }
 
     async setData(userData) {

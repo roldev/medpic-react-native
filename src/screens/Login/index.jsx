@@ -59,12 +59,12 @@ export default function Login({ navigation }) {
         userStoreAccess.setData({
             USER_NAME_KEY: userData.name, 
             USER_PHONE_KEY: userData.phone, 
-            USER_LOCATION_KEY: userData.location
+            USER_LOCATION_KEY: userData.location,
         });
         
         userStoreAccess.getVal(USER_HAS_VISITED_INTRO_KEY)
             .then((hasVisitedIntro) => {
-                const nextPage = hasVisitedIntro ? "SelectAction" : "Explanation";
+                const nextPage = hasVisitedIntro == "true" ? "SelectAction" : "Explanation";
                 navigation.navigate(nextPage);
             })
     };
