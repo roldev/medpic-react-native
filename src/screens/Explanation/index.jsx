@@ -18,7 +18,7 @@ export default function ECGCapture({ navigation }) {
                 <Image source={boxExample} resizeMode="cover" style={styles.boxExample} />
             </View>
             <View style={styles.explanationBlock}>
-                <Text style={styles.text}>Short press for a still photo, long for video</Text>
+                <Text style={styles.text}>Short press for a still photo, long for video. A red blinking circle will indicate recording</Text>
                 <View style={styles.cameraIconsWrapper}>
                     <FontAwesome
                         name="camera"
@@ -26,12 +26,7 @@ export default function ECGCapture({ navigation }) {
                         color="white"
                         size={50}
                     />
-                    <FontAwesome
-                        name="video-camera"
-                        backgroundColor="transparent"
-                        color="white"
-                        size={50}
-                    />
+                    
                 </View>
             </View>
             <View style={styles.buttonBlock}>

@@ -15,6 +15,7 @@ import "react-native-get-random-values"; // must come before uuid
 import { v4 as uuidv4 } from "uuid";
 
 import DiagnosisPicker from "./components/DiagnosisPicker";
+import SendingAnimation from "./components/SendingAnimation";
 
 import rotateRightIcon from "../../../assets/rotateright.png";
 import rotateLeftIcon from "../../../assets/rotateleft.png";
@@ -30,6 +31,8 @@ export default function Preview({ route, navigation }) {
     const [customDiag, setCustomDiag] = useState(null);
 
     const [IP, setIP] = useState("");
+
+    const [isSending, setIsSending] = useState(false);
 
     const rectPixels = route.params.rectPixels
         ? { overlay: route.params.rectPixels }
@@ -60,6 +63,8 @@ export default function Preview({ route, navigation }) {
     };
 
     const send = async () => {
+        setIsSending(true);
+
         const filename = uuidv4() + ".jpg";
 
         const userStoreAccess = new UserData();
@@ -118,7 +123,7 @@ export default function Preview({ route, navigation }) {
                     Alert.alert(alertHeader, "", [
                         {
                             text: "OK",
-                            onPress: () => {},
+                            onPress: () => { },
                         },
                     ]);
 
@@ -153,7 +158,8 @@ export default function Preview({ route, navigation }) {
                     },
                 ]);
                 console.error(error);
-            });
+            })
+            .finally(() => {setIsSending(false);});
     };
 
     if (!image && !video) {
@@ -163,19 +169,28 @@ export default function Preview({ route, navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.previewWrapper}>
+                <Text style={styles.leftSide}>This is the left side of the ECG plot</Text>
+
                 {image ? (
                     <Image source={{ uri: image.uri }} style={styles.image} />
                 ) : (
-                    <Video
-                        source={video}
-                        rate={1.0}
-                        isMuted={true}
-                        resizeMode="contain"
-                        shouldPlay={true}
-                        isLooping={true}
-                        style={styles.video}
-                    />
-                )}
+                        <Video
+                            source={video}
+                            rate={1.0}
+                            isMuted={true}
+                            resizeMode="contain"
+                            shouldPlay={true}
+                            isLooping={true}
+                            style={styles.video}
+                        />
+                    )}
+
+                {isSending ? 
+                    <View style={{flex: 1, alignItems: "center"}}>
+                        <SendingAnimation ringColor={config.colors.primary} ballColor={config.colors.primary} />
+                        <Text style={{top: 50, fontSize: 30, color: config.colors.primary}}>Sending...</Text>
+                    </View>
+                    : null}
 
                 <DiagnosisPicker
                     selectedDiag={selectedDiag}
@@ -231,6 +246,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
         resizeMode: "contain",
         flex: 1,
+        transform: [{ rotate: "180deg" }],
     },
 
     video: {
@@ -287,5 +303,15 @@ const styles = StyleSheet.create({
     inputText: {
         height: 50,
         color: "white",
+    },
+
+    leftSide: {
+        position: "absolute",
+        color: config.colors.secondary,
+        backgroundColor: config.colors.primary,
+        top: 420,
+        zIndex: 5,
+        left: -100,
+        transform: [{ rotate: "-90deg" }],
     },
 });

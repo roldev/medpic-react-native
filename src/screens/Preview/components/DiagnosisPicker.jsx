@@ -60,7 +60,7 @@ export default function DiagnosisPicker({
 const styles = StyleSheet.create({
     pickerWrapper: {
         flex: 1,
-        zIndex: 1,
+        zIndex: 5,
         position: "absolute",
         width: "100%",
         height: "100%",
