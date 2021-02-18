@@ -36,18 +36,22 @@ export default function SelectAction({ navigation }) {
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
             quality: 1,
             allowsEditing: true,
         });
 
         if (!result.cancelled) {
-            navigation.navigate("Preview", { image: result });
+            navigation.navigate("Preview", { video: result });
         }
     };
 
-    const takePicture = async () => {
+    const recordVideo = async () => {
         navigation.navigate("ECGCapture");
+    };
+
+    const goToExplanation = async () => {
+        navigation.navigate("Explanation");
     };
 
     return (
@@ -61,12 +65,19 @@ export default function SelectAction({ navigation }) {
 
                 {permissions.camera && (
                     <TouchableOpacity
-                        onPress={takePicture}
+                        onPress={recordVideo}
                         style={styles.button}
                     >
-                        <Text style={styles.buttonText}>Take a picture</Text>
+                        <Text style={styles.buttonText}>Record a video</Text>
                     </TouchableOpacity>
                 )}
+
+                <TouchableOpacity
+                    onPress={goToExplanation}
+                    style={styles.button}
+                >
+                    <Text style={styles.buttonText}>What should I do?</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );

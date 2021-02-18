@@ -136,7 +136,7 @@ export default function Preview({ route, navigation }) {
 
                 res.json().then((res) => {
                     const alertHeader = "Image Sent Successfully";
-                    const alertMsg = `Heart Rate: ${res.data[1]}\nDiagnsis: ${res.data[3]}`;
+                    const alertMsg = `Heart Rate: ${res.data.heartRate}\nDiagnsis: ${res.data.diagnosis}`;
 
                     Alert.alert(alertHeader, alertMsg, [
                         {

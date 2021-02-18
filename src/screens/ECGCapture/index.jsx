@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Animated, StyleSheet, Dimensions, Alert, Easing } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
-import * as ImageManipulator from "expo-image-manipulator";
 
 import ResizableRectangle from "./components/ResizableRectangle";
+import CountDownBlink from "./components/CountDownBlink";
 
 import AppPermissions from "../../utils/AppPermissions";
 import config from "../../config";
@@ -12,8 +12,7 @@ import config from "../../config";
 export default function ECGCapture({ navigation }) {
     const cameraRef = useRef(null);
     const [innerRect, setInnerRect] = useState({});
-    const [isVideo, setIsVideo] = useState(false);
-    const [recordOpacityVal, setRecordOpacityVal] = useState(new Animated.Value(0));
+    const [isRecording, setIsRecording] = useState(false);
 
     const calcRectPixels = (imageWidth, imageHeight) => {
         const xRatio = innerRect.x / Dimensions.get("window").width;
@@ -36,30 +35,6 @@ export default function ECGCapture({ navigation }) {
         };
     };
 
-    const takePicture = () => {
-        if (!cameraRef) {
-            return;
-        }
-
-        cameraRef.current
-            .takePictureAsync({
-                quality: 1,
-                exif: true,
-            })
-            .then((image) => {
-                navigation.navigate("Preview", { image, rectPixels: calcRectPixels(image.width, image.height) });
-            })
-            .catch((error) => {
-                console.error(error);
-                Alert.alert("Please place bounding box within picture", "", [
-                    {
-                        text: "OK",
-                        onPress: () => { },
-                    },
-                ]);
-            });
-    };
-
     const recordVideo = () => {
         const appPermissions = new AppPermissions();
         const audioRecordingPermission = appPermissions.getAudioRecordingPermission();
@@ -78,8 +53,7 @@ export default function ECGCapture({ navigation }) {
             return;
         }
 
-        blinkWithFade();
-        setIsVideo(true);
+        setIsRecording(true);
 
         cameraRef.current
             .recordAsync({
@@ -88,34 +62,13 @@ export default function ECGCapture({ navigation }) {
                 mute: true,
             })
             .then((video) => {
-                setIsVideo(false);
+                setIsRecording(false);
                 navigation.navigate("Preview", { video, rectPixels: calcRectPixels(video.width, video.height) });
             });
     };
 
     const stopVideoRecord = () => {
         cameraRef.current.stopRecording();
-    };
-
-    const blinkWithFade = () => {
-        Animated.loop(Animated.sequence([
-            Animated.timing(recordOpacityVal, {
-                toValue: 1,
-                duration: 1000,
-                easing: Easing.linear,
-                useNativeDriver: true
-            }),
-            Animated.timing(recordOpacityVal, {
-                toValue: 0,
-                duration: 1000,
-                easing: Easing.linear,
-                useNativeDriver: true
-            })
-        ],
-        {
-            iterations: 10,
-            useNativeDriver: true
-        })).start();
     };
 
     return (
@@ -136,21 +89,28 @@ export default function ECGCapture({ navigation }) {
                         setRect={setInnerRect}
                         externalStyle={{}}
                     />
+
                     {
-                        isVideo ?
-                        <Animated.View style={[styles.recordingIndicator, {opacity: recordOpacityVal}]}></Animated.View>
+                        isRecording ?
+                            <>
+                                <CountDownBlink seconds={10} countDownColor={config.colors.secondary} />
+                                <FontAwesome.Button
+                                    name="stop-circle"
+                                    onPress={stopVideoRecord}
+                                    backgroundColor="transparent"
+                                    size={60}
+                                    style={styles.fontAwesome}
+                                />
+                            </>
                             :
-                            null
+                            <FontAwesome.Button
+                                name="video-camera"
+                                onPress={recordVideo}
+                                backgroundColor="transparent"
+                                size={50}
+                                style={styles.fontAwesome}
+                            />
                     }
-                    
-                    <FontAwesome.Button
-                        name="camera"
-                        onPress={takePicture}
-                        onLongPress={recordVideo}
-                        onPressOut={stopVideoRecord}
-                        backgroundColor="transparent"
-                        size={50}
-                    />
                 </View>
             </Camera>
         </View>
@@ -165,15 +125,7 @@ const styles = StyleSheet.create({
     camera: {
         flex: 1,
         justifyContent: "center",
-    },
-
-    recordingIndicator: {
-        position: "absolute",
-        bottom: 80,
-        height: 50,
-        width: 50,
-        backgroundColor: "red",
-        borderRadius: 50,
+        alignContent: "center",
     },
 
     overlayWrapper: {
@@ -189,5 +141,9 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         color: config.colors.secondary,
         backgroundColor: config.colors.primary,
+    },
+
+    fontAwesome: {
+        marginRight: -10,
     },
 });
