@@ -246,7 +246,6 @@ const styles = StyleSheet.create({
         marginTop: 40,
         resizeMode: "contain",
         flex: 1,
-        transform: [{ rotate: "180deg" }],
     },
 
     video: {
@@ -309,9 +308,8 @@ const styles = StyleSheet.create({
         position: "absolute",
         color: config.colors.secondary,
         backgroundColor: config.colors.primary,
-        top: 420,
+        top: 100,
+        alignSelf: "center",
         zIndex: 5,
-        left: -100,
-        transform: [{ rotate: "-90deg" }],
     },
 });

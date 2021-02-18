@@ -59,7 +59,7 @@ export default function SelectAction({ navigation }) {
             <View style={styles.buttonsCotainer}>
                 {permissions.mediaLibrary && (
                     <TouchableOpacity onPress={pickImage} style={styles.button}>
-                        <Text style={styles.buttonText}>Pick an image</Text>
+                        <Text style={styles.buttonText}>Pick a video</Text>
                     </TouchableOpacity>
                 )}
 

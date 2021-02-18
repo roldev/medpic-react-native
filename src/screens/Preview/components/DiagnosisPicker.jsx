@@ -16,7 +16,7 @@ export default function DiagnosisPicker({
             .then((res) => res.json())
             .then((diagnosisOptions) => {
                 const initialItems = items;
-                const serverItems = diagnosisOptions.map(({id, name}) => ({ id: id.toString(), name: name }));
+                const serverItems = diagnosisOptions.map(({ id, name }) => ({ id: id.toString(), name: name }));
                 setItems(serverItems.concat(initialItems));
             });
     }, []);
@@ -30,6 +30,16 @@ export default function DiagnosisPicker({
                     setSelectedDiag(selectedItems);
                 }}
                 selectedItems={selectedDiag}
+                submitButtonColor={config.colors.primary}
+                submitButtonText="Close"
+                tagRemoveIconColor={config.colors.primary}
+                tagBorderColor={config.colors.primary}
+                tagTextColor={config.colors.primary}
+                selectedItemTextColor="red"
+                selectedItemIconColor={config.colors.secondary}
+                textInputProps={{ editable: false, autoFocus: false }}
+                searchInputPlaceholderText=""
+                searchIcon={false}
             />
 
             {selectedDiag.indexOf("Other") !== -1 && (
@@ -38,17 +48,8 @@ export default function DiagnosisPicker({
                         value={customDiag}
                         onChangeText={(diag) => setCustomDiag(diag)}
                         placeholder="Other diagnoses"
-                        placeholderTextColor="#003f5c"
-                        tagRemoveIconColor="#CCC"
-                        tagBorderColor="#CCC"
-                        tagTextColor="#CCC"
-                        selectedItemTextColor="red"
-                        selectedItemIconColor={config.colors.secondary}
-                        itemTextColor="#000"
+
                         displayKey="name"
-                        searchInputStyle={{ color: "#CCC" }}
-                        submitButtonColor={config.colors.primary}
-                        submitButtonText="Close"
                         style={styles.customDiag}
                     />
                 </View>
