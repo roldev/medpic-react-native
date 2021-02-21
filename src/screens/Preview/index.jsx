@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
     View,
-    Image,
     Text,
-    TextInput,
     StyleSheet,
     TouchableOpacity,
     Alert,
@@ -24,7 +22,6 @@ import UserData from "../../store/UserData";
 import config from "../../config";
 
 export default function Preview({ route, navigation }) {
-    const [image, setImage] = useState(route.params.image);
     const [video, setVideo] = useState(route.params.video);
 
     const [selectedDiag, setSelectedDiag] = useState([]);
@@ -44,24 +41,6 @@ export default function Preview({ route, navigation }) {
         });
     });
 
-    const rotate90Right = () => {
-        ImageManipulator.manipulateAsync(image.uri, [{ rotate: 90 }], {
-            compress: 1,
-            format: ImageManipulator.SaveFormat.PNG,
-        }).then((newImage) => {
-            setImage(newImage);
-        });
-    };
-
-    const rotate90Left = () => {
-        ImageManipulator.manipulateAsync(image.uri, [{ rotate: -90 }], {
-            compress: 1,
-            format: ImageManipulator.SaveFormat.PNG,
-        }).then((newImage) => {
-            setImage(newImage);
-        });
-    };
-
     const send = async () => {
         setIsSending(true);
 
@@ -72,13 +51,6 @@ export default function Preview({ route, navigation }) {
 
         const formData = new FormData();
 
-        if (image) {
-            formData.append("picture", {
-                uri: image.uri,
-                name: filename,
-                type: "image/jpg",
-            });
-        }
         if (video) {
             formData.append("video", {
                 uri: video.uri,
@@ -93,13 +65,10 @@ export default function Preview({ route, navigation }) {
             JSON.stringify(
                 Object.assign(
                     {
-                        userName: userData.name,
-                        userPhone: userData.phone,
-                        userPlace: userData.location,
+                        userId: userData.userId,
                         filename: filename,
-                        selectedItem: selectedDiag.join(", "),
-                        customtype: customDiag,
-                        comment: "",
+                        selectedDiags: selectedDiag.join(","),
+                        customDiag: customDiag,
                         angle: 0,
                         clientIP: IP,
                     },
@@ -130,7 +99,7 @@ export default function Preview({ route, navigation }) {
                     return;
                 }
 
-                setImage(null);
+                setVideo(null);
                 setSelectedDiag([]);
                 setCustomDiag(null);
 
@@ -159,11 +128,11 @@ export default function Preview({ route, navigation }) {
                 ]);
                 console.error(error);
             })
-            .finally(() => {setIsSending(false);});
+            .finally(() => { setIsSending(false); });
     };
 
-    if (!image && !video) {
-        return <Text>No video or image supplied to screen</Text>;
+    if (!video) {
+        return <Text>No video supplied</Text>;
     }
 
     return (
@@ -171,63 +140,40 @@ export default function Preview({ route, navigation }) {
             <View style={styles.previewWrapper}>
                 <Text style={styles.leftSide}>This is the left side of the ECG plot</Text>
 
-                {image ? (
-                    <Image source={{ uri: image.uri }} style={styles.image} />
+                {video ? (
+                    <Video
+                        source={video}
+                        rate={1.0}
+                        isMuted={true}
+                        resizeMode="contain"
+                        shouldPlay={true}
+                        isLooping={true}
+                        style={styles.video}
+                    />
                 ) : (
-                        <Video
-                            source={video}
-                            rate={1.0}
-                            isMuted={true}
-                            resizeMode="contain"
-                            shouldPlay={true}
-                            isLooping={true}
-                            style={styles.video}
-                        />
+                        null
                     )}
 
-                {isSending ? 
-                    <View style={{flex: 1, alignItems: "center"}}>
+                {isSending ?
+                    <View style={{ flex: 1, alignItems: "center" }}>
                         <SendingAnimation ringColor={config.colors.primary} ballColor={config.colors.primary} />
-                        <Text style={{top: 50, fontSize: 30, color: config.colors.primary}}>Sending...</Text>
+                        <Text style={styles.sendingText}>Sending...</Text>
                     </View>
-                    : null}
-
-                <DiagnosisPicker
-                    selectedDiag={selectedDiag}
-                    setSelectedDiag={setSelectedDiag}
-                    customDiag={customDiag}
-                    setCustomDiag={setCustomDiag}
-                />
+                    :
+                    <DiagnosisPicker
+                        selectedDiag={selectedDiag}
+                        setSelectedDiag={setSelectedDiag}
+                        customDiag={customDiag}
+                        setCustomDiag={setCustomDiag}
+                    />}
 
                 <View style={styles.buttonsContainer}>
-                    {image && (
-                        <TouchableOpacity
-                            onPress={rotate90Left}
-                            style={styles.rotateButton}
-                        >
-                            <Image
-                                source={rotateLeftIcon}
-                                style={styles.rotateIcon}
-                            />
-                        </TouchableOpacity>
-                    )}
                     <TouchableOpacity onPress={send} style={styles.button}>
                         <Text style={styles.buttonText}>SUBMIT</Text>
                     </TouchableOpacity>
-                    {image && (
-                        <TouchableOpacity
-                            onPress={rotate90Right}
-                            style={styles.rotateButton}
-                        >
-                            <Image
-                                source={rotateRightIcon}
-                                style={styles.rotateIcon}
-                            />
-                        </TouchableOpacity>
-                    )}
                 </View>
             </View>
-        </View>
+        </View >
     );
 }
 
@@ -311,5 +257,11 @@ const styles = StyleSheet.create({
         top: 100,
         alignSelf: "center",
         zIndex: 5,
+    },
+
+    sendingText: {
+        top: 50,
+        fontSize: 30,
+        color: config.colors.primary,
     },
 });
