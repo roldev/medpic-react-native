@@ -11,7 +11,7 @@ export default config = {
         baseUrl: "http://132.68.36.204/",
         paths: {
             user: "user",
-            uploadimage: "upload",
+            uploadimage: "diagnosis-data",
             diagnosisOptions: "diagnosis-options"
         }
     }

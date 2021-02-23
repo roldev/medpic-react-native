@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import DiagnosisPicker from "./components/DiagnosisPicker";
 import SendingAnimation from "./components/SendingAnimation";
 
-import UserData from "../../store/UserData";
+import UserData, { USER_ID_KEY } from "../../store/UserData";
 import config from "../../config";
 
 export default function Preview({ route, navigation }) {
@@ -31,7 +31,7 @@ export default function Preview({ route, navigation }) {
     const send = async () => {
         setIsSending(true);
 
-        const filename = uuidv4() + ".jpg";
+        const filename = uuidv4() + ".mp4";
 
         const userStoreAccess = new UserData();
         const userData = await userStoreAccess.getData();
@@ -52,7 +52,7 @@ export default function Preview({ route, navigation }) {
             JSON.stringify(
                 Object.assign(
                     {
-                        userId: userData.userId,
+                        userId: userData[USER_ID_KEY],
                         filename: filename,
                         selectedDiags: selectedDiag.join(","),
                         customDiag: customDiag,
@@ -89,19 +89,24 @@ export default function Preview({ route, navigation }) {
                 setSelectedDiag([]);
                 setCustomDiag(null);
 
-                res.json().then((res) => {
-                    const alertHeader = "Image Sent Successfully";
-                    const alertMsg = `Heart Rate: ${res.data.heartRate}\nDiagnsis: ${res.data.diagnosis}`;
+                res.json()
+                    .then((res) => {
 
-                    Alert.alert(alertHeader, alertMsg, [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                navigation.navigate("SelectAction");
+                        const alertHeader = "Video Sent Successfully";
+                        const alertMsg = `Heart Rate: ${res.heartRate}\nDiagnsis: ${res.diagnosis}`;
+
+                        Alert.alert(alertHeader, alertMsg, [
+                            {
+                                text: "OK",
+                                onPress: () => {
+                                    navigation.navigate("SelectAction");
+                                },
                             },
-                        },
-                    ]);
-                });
+                        ]);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
             })
             .catch((error) => {
                 Alert.alert("There was an error sending", "", [
