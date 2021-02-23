@@ -2,71 +2,94 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from "react-native";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
+import * as Network from "expo-network";
 
 import config from "../../config";
 
 import locationIcon from "../../../assets/location.png";
-import UserData, { USER_NAME_KEY, USER_PHONE_KEY, USER_LOCATION_KEY, USER_HAS_VISITED_INTRO_KEY } from "../../store/UserData";
+import UserData, { USER_ID_KEY, USER_NAME_KEY, USER_PHONE_KEY, USER_LOCATION_KEY, USER_IP_KEY, USER_HAS_VISITED_INTRO_KEY } from "../../store/UserData";
 import AppPermissions from "../../utils/AppPermissions";
+import { buildUrlWithQueryParams } from "../../utils/network";
 
 export default function Login({ navigation }) {
     const userStoreAccess = new UserData();
     const appPermissions = new AppPermissions();
 
     const [userData, setUserData] = useState({
+        id: "",
         name: "",
         location: "",
-        phone: ""
+        phone: "",
+        ip: ""
     });
 
     const [error, setError] = useState("");
 
     useEffect(() => {
-        userStoreAccess.getData().then((data) => {
+        userStoreAccess.getData().then(async (data) => {
+            const ip = data[USER_IP_KEY] ? data[USER_IP_KEY] : await Network.getIpAddressAsync();
+    
             setUserData({
+                id: data[USER_ID_KEY] ? data[USER_ID_KEY] : null,
                 name: data[USER_NAME_KEY] ? data[USER_NAME_KEY] : "",
                 location: data[USER_LOCATION_KEY] ? data[USER_LOCATION_KEY] : "",
-                phone: data[USER_PHONE_KEY] ? data[USER_PHONE_KEY] : ""
+                phone: data[USER_PHONE_KEY] ? data[USER_PHONE_KEY] : "",
+                ip: ip,
             });
         });
     }, []);
 
     const getLocationAsync = async () => {
         const isGranted = await appPermissions.getLocationPermission(Permissions.LOCATION);
-        if(!isGranted) {
+        if (!isGranted) {
             setError("Permission to access location was denied");
             return;
         }
 
-        const { coords: { latitude, longitude }} = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Lowest});
+        const { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest });
 
         const addresses = await Location.reverseGeocodeAsync({ latitude, longitude });
-        
+
         let finalLocation = "";
-        if(addresses.length < 0) {
+        if (addresses.length < 0) {
             finalLocation = JSON.stringify(location.latitude, location.longitude);
 
             setError("Could not translate coordinates to address");
-        } 
+        }
         else {
             finalLocation = `${addresses[0].city}, ${addresses[0].country}`;
         }
-        
-        setUserData({...userData, location: finalLocation});
+
+        setUserData({ ...userData, location: finalLocation });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        setError("");
+
+        if (userData.phone.length < 9) {
+            setError("Please fill in you phone number");
+            return;
+        }
+
+        const { id, ...userDataForSubmission } = userData;
+
+        const response = await fetch(buildUrlWithQueryParams(`${config.urls.baseUrl}${config.urls.paths.user}`, userDataForSubmission));
+        let userId = await response.json();
+        userId = userId.id;
+        setUserData({ ...userData, id: userId });
+
         userStoreAccess.setData({
-            USER_NAME_KEY: userData.name, 
-            USER_PHONE_KEY: userData.phone, 
+            USER_ID_KEY: userId,
+            USER_NAME_KEY: userData.name,
+            USER_PHONE_KEY: userData.phone,
             USER_LOCATION_KEY: userData.location,
         });
-        
+
         userStoreAccess.getVal(USER_HAS_VISITED_INTRO_KEY)
             .then((hasVisitedIntro) => {
                 const nextPage = hasVisitedIntro == "true" ? "SelectAction" : "Explanation";
                 navigation.navigate(nextPage);
-            })
+            });
     };
 
     return (
@@ -75,26 +98,28 @@ export default function Login({ navigation }) {
             <View style={styles.input}>
                 <TextInput
                     value={userData.name}
-                    onChangeText={(name) => (setUserData({...userData, name}))} 
-                    placeholder="Name..." 
-                    placeholderTextColor={config.colors.inputPlaceHolder} 
+                    onChangeText={(name) => (setUserData({ ...userData, name }))}
+                    placeholder="Name..."
+                    placeholderTextColor={config.colors.inputPlaceHolder}
                     style={styles.inputText} />
             </View>
             <View style={styles.input}>
-                <TextInput 
+                <TextInput
                     value={userData.phone}
-                    onChangeText={(phone) => (setUserData({...userData, phone}))}
+                    onChangeText={(phone) => (setUserData({ ...userData, phone }))}
                     placeholder="Phone Number..."
                     placeholderTextColor={config.colors.inputPlaceHolder}
                     style={styles.inputText} />
             </View>
+            {error.length > 0 ?
+                <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.locationWrapper}>
                 <View style={styles.input}>
                     <TextInput
                         value={userData.location}
-                        onChangeText={(location) => (setUserData({...userData, location}))} 
+                        onChangeText={(location) => (setUserData({ ...userData, location }))}
                         placeholder="City, Country..."
-                        placeholderTextColor="#003f5c" 
+                        placeholderTextColor="#003f5c"
                         style={styles.inputText} />
                 </View>
 
@@ -102,7 +127,7 @@ export default function Login({ navigation }) {
                     <Image source={locationIcon} style={styles.locationIcon} />
                 </TouchableOpacity>
             </View>
-            
+
             <TouchableOpacity onPress={handleSave} style={styles.loginBtn}>
                 <Text style={styles.loginText}>save</Text>
             </TouchableOpacity>
@@ -133,7 +158,7 @@ const styles = StyleSheet.create({
         height: 50,
         marginBottom: 20,
         padding: 20
-        
+
     },
 
     locationWrapper: {
@@ -151,7 +176,7 @@ const styles = StyleSheet.create({
         height: 50,
         marginBottom: 20,
         padding: 20
-        
+
     },
 
     locationBtn: {
@@ -185,5 +210,12 @@ const styles = StyleSheet.create({
     loginText: {
         color: "white",
         textTransform: "uppercase"
+    },
+
+    error: {
+        color: "red",
+        fontSize: 18,
+        marginTop: -15,
+        marginBottom: 5
     }
 });

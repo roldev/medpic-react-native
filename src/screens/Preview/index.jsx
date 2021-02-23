@@ -7,16 +7,11 @@ import {
     Alert,
 } from "react-native";
 import { Video } from "expo-av";
-import * as ImageManipulator from "expo-image-manipulator";
-import * as Network from "expo-network";
 import "react-native-get-random-values"; // must come before uuid
 import { v4 as uuidv4 } from "uuid";
 
 import DiagnosisPicker from "./components/DiagnosisPicker";
 import SendingAnimation from "./components/SendingAnimation";
-
-import rotateRightIcon from "../../../assets/rotateright.png";
-import rotateLeftIcon from "../../../assets/rotateleft.png";
 
 import UserData from "../../store/UserData";
 import config from "../../config";
@@ -27,19 +22,11 @@ export default function Preview({ route, navigation }) {
     const [selectedDiag, setSelectedDiag] = useState([]);
     const [customDiag, setCustomDiag] = useState(null);
 
-    const [IP, setIP] = useState("");
-
     const [isSending, setIsSending] = useState(false);
 
     const rectPixels = route.params.rectPixels
         ? { overlay: route.params.rectPixels }
         : {};
-
-    useEffect(() => {
-        Network.getIpAddressAsync().then((localIP) => {
-            setIP(localIP);
-        });
-    });
 
     const send = async () => {
         setIsSending(true);
@@ -70,7 +57,6 @@ export default function Preview({ route, navigation }) {
                         selectedDiags: selectedDiag.join(","),
                         customDiag: customDiag,
                         angle: 0,
-                        clientIP: IP,
                     },
                     rectPixels
                 )

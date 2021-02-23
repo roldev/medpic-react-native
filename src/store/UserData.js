@@ -1,8 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+export const USER_ID_KEY = "USER_ID_KEY";
 export const USER_NAME_KEY = "USER_NAME_KEY";
 export const USER_PHONE_KEY = "USER_PHONE_KEY";
 export const USER_LOCATION_KEY = "USER_LOCATION_KEY";
+export const USER_IP_KEY = "USER_IP_KEY";
+
 export const USER_HAS_VISITED_INTRO_KEY = "USER_HAS_VISITED_INTRO_KEY";
 
 export default class UserData {
@@ -42,6 +45,10 @@ export default class UserData {
             data[key] = val;
             this.setData(data);
         });
+    }
+
+    async clearData() {
+        return AsyncStorage.removeItem(this.storeUserKey);
     }
 
 }
