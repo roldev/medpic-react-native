@@ -14,22 +14,27 @@ export default function Explanation({ navigation }) {
         const userDataAccess = new UserData();
         userDataAccess.setVal(USER_HAS_VISITED_INTRO_KEY, "true");
 
-        navigation.navigate("SelectAction"); 
+        navigation.navigate("SelectAction");
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>medpic</Text>
+            
             <View style={styles.explanationBlock}>
                 <Text style={styles.text}>Please move the red frame to fit ECG plot and film for 10 seconds</Text>
                 <Image source={boxExample} resizeMode="cover" style={styles.boxExample} />
                 <Text style={styles.text}>The recording will automatically stop</Text>
+            </View>
+            <View style={styles.explanationBlock}>
+                <Text style={[styles.text, styles.disclaimer]}><Text style={{fontWeight: "bold"}}>Disclaimer: </Text>This is not intended for medical purposes. You should always consult your health care professional about any questions or health issues you may have.</Text>
             </View>
             <View style={styles.buttonBlock}>
                 <TouchableOpacity onPress={handleContinue} style={styles.continueBtn}>
                     <Text style={styles.continueText}>Continue</Text>
                 </TouchableOpacity>
             </View>
+            
         </View>
     );
 }
@@ -50,6 +55,10 @@ const styles = StyleSheet.create({
         marginBottom: 40
     },
 
+    disclaimer: {
+        color: "red",
+    },
+
     text: {
         color: config.colors.primary,
         fontSize: 19,
@@ -58,30 +67,21 @@ const styles = StyleSheet.create({
     },
 
     explanationBlock: {
-        flex: 1,
         flexDirection: "column",
         alignItems: "center",
         marginBottom: 50,
     },
-    
+
     buttonBlock: {
-        flex: 1,
         width: "100%",
-        flexDirection: "column",
         alignItems: "center",
+        marginBottom: 20,
     },
 
     boxExample: {
         width: 324,
         height: 150,
         marginBottom: 10,
-    },
-
-    cameraIconsWrapper: {
-        flex: 1,
-        flexDirection: "row",
-        justifyContent: "space-evenly",
-        width: 300
     },
 
     continueBtn: {
