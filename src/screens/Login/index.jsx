@@ -74,6 +74,10 @@ export default function Login({ navigation }) {
         const { id, ...userDataForSubmission } = userData;
 
         const response = await fetch(buildUrlWithQueryParams(`${config.urls.baseUrl}${config.urls.paths.user}`, userDataForSubmission));
+        if(!response.ok) {
+            setError("Error retrieving user");
+            return;
+        }
         let userId = await response.json();
         userId = userId.id;
         setUserData({ ...userData, id: userId });
@@ -95,6 +99,8 @@ export default function Login({ navigation }) {
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>medpic</Text>
+            {error.length > 0 ?
+                <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.input}>
                 <TextInput
                     value={userData.name}
@@ -111,8 +117,6 @@ export default function Login({ navigation }) {
                     placeholderTextColor={config.colors.inputPlaceHolder}
                     style={styles.inputText} />
             </View>
-            {error.length > 0 ?
-                <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.locationWrapper}>
                 <View style={styles.input}>
                     <TextInput

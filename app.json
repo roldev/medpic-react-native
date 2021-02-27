@@ -24,7 +24,7 @@
             "bundleIdentifier": "com.medpic.app"
         },
         "android": {
-            "versionCode": 1.2,
+            "versionCode": 1,
             "package": "com.medpic.app",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
