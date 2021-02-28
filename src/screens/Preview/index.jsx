@@ -93,7 +93,7 @@ export default function Preview({ route, navigation }) {
                     .then((res) => {
 
                         const alertHeader = "Video Sent Successfully";
-                        const alertMsg = `Heart Rate: ${res.heartRate}\nDiagnsis: ${res.diagnosis}`;
+                        const alertMsg = `Diagnsis: ${res.diagnosis}`;
 
                         Alert.alert(alertHeader, alertMsg, [
                             {
