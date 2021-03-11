@@ -1,18 +1,9 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useRef} from 'react';
 import {RNCamera} from 'react-native-camera';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Dimensions,
-  Alert,
-  Easing,
-} from 'react-native';
+import {View, Text, StyleSheet, Alert} from 'react-native';
 import Torch from 'react-native-torch';
 import {FontAwesome} from '@expo/vector-icons';
 
-import ResizableRectangle from './components/ResizableRectangle';
 import CountDownBlink from './components/CountDownBlink';
 
 import AppPermissions from '../../utils/AppPermissions';
@@ -20,29 +11,7 @@ import config from '../../config';
 
 export default function ECGCapture({navigation}) {
   const cameraRef = useRef(null);
-  const [innerRect, setInnerRect] = useState({});
   const [isRecording, setIsRecording] = useState(false);
-
-  const calcRectPixels = (imageWidth, imageHeight) => {
-    const xRatio = innerRect.x / Dimensions.get('window').width;
-    let originX = imageWidth * xRatio;
-
-    const widthRatio = innerRect.width / Dimensions.get('window').width;
-    let width = imageWidth * widthRatio;
-
-    const yRatio = innerRect.y / Dimensions.get('window').height;
-    let originY = (imageHeight + 100) * yRatio;
-
-    const heightRatio = innerRect.height / Dimensions.get('window').height;
-    let height = imageHeight * heightRatio;
-
-    return {
-      originX: originY,
-      originY: originX,
-      width: width,
-      height: height,
-    };
-  };
 
   const recordVideo = () => {
     const appPermissions = new AppPermissions();
@@ -75,7 +44,6 @@ export default function ECGCapture({navigation}) {
         Torch.switchState(false);
         navigation.navigate('Preview', {
           video,
-          rectPixels: calcRectPixels(video.width, video.height),
         });
       });
   };
@@ -93,17 +61,11 @@ export default function ECGCapture({navigation}) {
         ratio={'16:9'}
         zoom={0}
         ref={cameraRef}
-        style={styles.camera}
-        autoFocusPointOfInterest={{x: 0.5, y: 0.5}}>
+        style={styles.camera}>
         <View style={styles.overlayWrapper}>
           <Text style={styles.leftSide}>
             This is the left side of the ECG plot
           </Text>
-          <ResizableRectangle
-            rect={innerRect}
-            setRect={setInnerRect}
-            externalStyle={{}}
-          />
 
           {isRecording ? (
             <>

@@ -22,49 +22,46 @@ export default function DiagnosisPicker({
     }, []);
 
     return (
-        <View style={styles.pickerWrapper}>
-            <MultiSelect
-                items={items}
-                uniqueKey="id"
-                onSelectedItemsChange={(selectedItems) => {
-                    setSelectedDiag(selectedItems);
-                }}
-                selectedItems={selectedDiag}
-                submitButtonColor={config.colors.primary}
-                submitButtonText="Close"
-                tagRemoveIconColor={config.colors.primary}
-                tagBorderColor={config.colors.primary}
-                tagTextColor={config.colors.primary}
-                selectedItemTextColor="red"
-                selectedItemIconColor={config.colors.secondary}
-                textInputProps={{ editable: false, autoFocus: false }}
-                searchInputPlaceholderText=""
-                searchIcon={false}
+      <View style={[styles.pickerWrapper]}>
+        <MultiSelect
+          items={items}
+          uniqueKey="id"
+          onSelectedItemsChange={(selectedItems) => {
+            setSelectedDiag(selectedItems);
+          }}
+          selectedItems={selectedDiag}
+          submitButtonColor={config.colors.primary}
+          submitButtonText="Close"
+          tagRemoveIconColor={config.colors.primary}
+          tagBorderColor={config.colors.primary}
+          tagTextColor={config.colors.primary}
+          selectedItemTextColor="red"
+          selectedItemIconColor={config.colors.secondary}
+          textInputProps={{editable: false, autoFocus: false}}
+          searchInputPlaceholderText=""
+          searchIcon={false}
+        />
+
+        {selectedDiag.indexOf('Other') !== -1 && (
+          <View style={styles.input}>
+            <TextInput
+              value={customDiag}
+              onChangeText={(diag) => setCustomDiag(diag)}
+              placeholder="Other diagnoses"
+              displayKey="name"
+              style={styles.customDiag}
             />
-
-            {selectedDiag.indexOf("Other") !== -1 && (
-                <View style={styles.input}>
-                    <TextInput
-                        value={customDiag}
-                        onChangeText={(diag) => setCustomDiag(diag)}
-                        placeholder="Other diagnoses"
-
-                        displayKey="name"
-                        style={styles.customDiag}
-                    />
-                </View>
-            )}
-        </View>
+          </View>
+        )}
+      </View>
     );
 }
 
 const styles = StyleSheet.create({
     pickerWrapper: {
-        flex: 1,
-        zIndex: 5,
+        zIndex: 20,
         position: "absolute",
         width: "100%",
-        height: "100%",
         flexDirection: "column",
         justifyContent: "flex-end",
         bottom: 70,
