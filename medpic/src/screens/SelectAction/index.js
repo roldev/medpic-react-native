@@ -47,6 +47,10 @@ export default function SelectAction({navigation}) {
     navigation.navigate('ECGCapture');
   };
 
+  const goToLogin = async () => {
+    navigation.navigate('Login');
+  };
+  
   const goToExplanation = async () => {
     navigation.navigate('Explanation');
   };
@@ -64,6 +68,10 @@ export default function SelectAction({navigation}) {
           </TouchableOpacity>
         )}
 
+        <TouchableOpacity onPress={goToLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Update Personal Data</Text>
+        </TouchableOpacity>
+        
         <TouchableOpacity onPress={goToExplanation} style={styles.button}>
           <Text style={styles.buttonText}>What should I do?</Text>
         </TouchableOpacity>
