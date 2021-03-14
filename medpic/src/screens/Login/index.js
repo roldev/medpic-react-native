@@ -20,7 +20,7 @@ import UserData, {
   USER_PHONE_KEY,
   USER_LOCATION_KEY,
   USER_IP_KEY,
-  USER_HAS_VISITED_INTRO_KEY,
+  USER_HAS_AGREED_KEY,
 } from '../../store/UserData';
 import AppPermissions from '../../utils/AppPermissions';
 import {buildUrlWithQueryParams} from '../../utils/network';
@@ -52,14 +52,14 @@ export default function Login({navigation}) {
         phone: data[USER_PHONE_KEY] ? data[USER_PHONE_KEY] : '',
         ip: ip,
       });
-      
+
       if (
         data[USER_ID_KEY] &&
         data[USER_NAME_KEY] &&
         data[USER_LOCATION_KEY] &&
         data[USER_PHONE_KEY] &&
         data[USER_IP_KEY]
-      ) {          
+      ) {
         navigation.navigate('SelectAction');
       }
     });
@@ -126,13 +126,11 @@ export default function Login({navigation}) {
       USER_IP_KEY: userData.ip,
     });
 
-    userStoreAccess
-      .getVal(USER_HAS_VISITED_INTRO_KEY)
-      .then((hasVisitedIntro) => {
-        const nextPage =
-          hasVisitedIntro == 'true' ? 'SelectAction' : 'Explanation';
-        navigation.navigate(nextPage);
-      });
+    userStoreAccess.getVal(USER_HAS_AGREED_KEY).then((hasAgreed) => {
+      const nextPage =
+        hasAgreed == 'true' ? 'SelectAction' : 'Explanation';
+      navigation.navigate(nextPage);
+    });
   };
 
   return (
