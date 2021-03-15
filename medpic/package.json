@@ -1,13 +1,16 @@
 {
   "name": "medpic",
-  "version": "0.0.1",
+  "version": "1.2.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "increment-project-version": "npm version patch --message \"Setting version to %s\"",
+    "version": "react-native-version --legacy --never-increment-build",
+    "increment-native-build-number": "react-native-version --legacy --increment-build"
   },
   "dependencies": {
     "@expo/vector-icons": "^12.0.3",
@@ -43,6 +46,7 @@
     "jest": "^25.1.0",
     "jetifier": "^1.6.6",
     "metro-react-native-babel-preset": "^0.59.0",
+    "react-native-version": "^4.0.0",
     "react-test-renderer": "16.13.1"
   },
   "jest": {
