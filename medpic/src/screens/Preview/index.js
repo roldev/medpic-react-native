@@ -85,8 +85,10 @@ export default function Preview({route, navigation}) {
         res
           .json()
           .then((res) => {
+            const diagnosisMessage = 'diagnosis' in res ? res.diagnosis : 'No suggested diagnosis was returned';
+
             const alertHeader = 'Video Sent Successfully';
-            const alertMsg = `Diagnsis: ${res.diagnosis}`;
+            const alertMsg = `Diagnsis: ${diagnosisMessage}`;
 
             Alert.alert(alertHeader, alertMsg, [
               {
