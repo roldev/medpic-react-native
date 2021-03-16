@@ -136,6 +136,7 @@ android {
         versionCode 1
         versionName "1.2.1"
         missingDimensionStrategy 'react-native-camera', 'general'
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -146,6 +147,12 @@ android {
         }
     }
     signingConfigs {
+        release {
+            storeFile file('medpic_app.keystore')
+            storePassword 'TODO_READ_FROM_CMD'
+            keyAlias 'medpic_app'
+            keyPassword 'TODO_READ_FROM_CMD'
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -160,7 +167,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
