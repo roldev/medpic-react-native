@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 
 import config from '../../config';
@@ -9,15 +9,45 @@ import UserData, {USER_HAS_AGREED_KEY} from '../../store/UserData';
 import boxExample from '../../../assets/boxExample.png';
 
 export default function Explanation({navigation}) {
+  const userDataAccess = new UserData();
+
   const [hasAgreed, setHasAgreed] = useState(false);
+
+  useEffect(() => {
+    userDataAccess.getVal(USER_HAS_AGREED_KEY).then((hasAgreed) => {
+      setHasAgreed(hasAgreed == 'true');
+    });
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (hasAgreed) {
+        return;
+      }
+
+      event.preventDefault();
+
+      Alert.alert('Please mark the checkbox', '', [
+        {
+          text: 'OK',
+          onPress: () => {},
+        },
+      ]);
+    });
+
+    return unsubscribe;
+  }, [navigation, hasAgreed]);
+
+  const handleCheckbox = (isChecked) => {
+    setHasAgreed(isChecked);
+
+    userDataAccess.setVal(USER_HAS_AGREED_KEY, isChecked.toString());
+  };
 
   const handleContinue = () => {
     if (!hasAgreed) {
       return;
     }
-
-    const userDataAccess = new UserData();
-    userDataAccess.setVal(USER_HAS_AGREED_KEY, 'true');
 
     navigation.navigate('SelectAction');
   };
@@ -47,9 +77,7 @@ export default function Explanation({navigation}) {
 
       <View style={styles.checkboxWrapper}>
         <CheckBox
-          onValueChange={() => {
-            setHasAgreed(!hasAgreed);
-          }}
+          onValueChange={handleCheckbox}
           value={hasAgreed}
           disabled={false}
           tintColors={{
