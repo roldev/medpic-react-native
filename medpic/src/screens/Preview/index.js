@@ -1,5 +1,12 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Alert,
+} from 'react-native';
 import {Video} from 'expo-av';
 import 'react-native-get-random-values'; // must come before uuid
 import {v4 as uuidv4} from 'uuid';
@@ -23,7 +30,17 @@ export default function Preview({route, navigation}) {
 
   const [isSending, setIsSending] = useState(false);
 
+  const originalRectRef = useRef(null);
+  const [originalRect, setOriginalRect] = useState({})
   const [innerRect, setInnerRect] = useState({});
+
+  useEffect(() => {
+    if (originalRectRef.current) {
+      originalRectRef.current.measureInWindow((x, y, width, height) => {
+        setOriginalRect({x, y, width, height});
+      });
+    }
+  });
 
   const send = async () => {
     setIsSending(true);
@@ -52,7 +69,7 @@ export default function Preview({route, navigation}) {
         selectedDiags: selectedDiag.join(','),
         customDiag: customDiag,
         angle: 0,
-        overlay: calcRectPixels(video.width, video.height)
+        overlay: calcRectPixels(video.width, video.height),
       }),
     );
 
@@ -85,7 +102,10 @@ export default function Preview({route, navigation}) {
         res
           .json()
           .then((res) => {
-            const diagnosisMessage = 'diagnosis' in res ? res.diagnosis : 'No suggested diagnosis was returned';
+            const diagnosisMessage =
+              'diagnosis' in res
+                ? res.diagnosis
+                : 'No suggested diagnosis was returned';
 
             const alertHeader = 'Video Sent Successfully';
             const alertMsg = `Diagnsis: ${diagnosisMessage}`;
@@ -141,16 +161,16 @@ export default function Preview({route, navigation}) {
   };
 
   const handleVideoOnLayout = (event) => {
-    event.target.measure((x, y, width, height, pageX, pageY) => {      
+    event.target.measure((x, y, width, height, pageX, pageY) => {
       setInnerRect({
         x: x,
         y: y,
         height: height,
         width: width,
       });
-    });    
+    });
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.previewWrapper}>
@@ -160,25 +180,29 @@ export default function Preview({route, navigation}) {
         <Text style={styles.leftSide}>
           This is the left side of the ECG plot
         </Text>
-        <ResizableRectangle
-          rect={innerRect}
-          setRect={setInnerRect}
-        />
-
-        {video ? (
-          <Video
-            source={video}
-            rate={1.0}
-            isMuted={true}
-            resizeMode="contain"
-            shouldPlay={true}
-            isLooping={true}
-            style={styles.video}
-            onLayout={handleVideoOnLayout}
-          />
-        ) : null}
-
-        {isSending ? (
+        {!isSending && video ? (
+          <>
+            <View style={styles.videoWrapper} ref={originalRectRef}>
+              <ResizableRectangle rect={innerRect} setRect={setInnerRect} limitingRect={originalRect} />
+              <Video
+                source={video}
+                rate={1.0}
+                isMuted={true}
+                resizeMode="contain"
+                shouldPlay={true}
+                isLooping={true}
+                style={styles.video}
+                onLayout={handleVideoOnLayout}
+              />
+            </View>
+            <DiagnosisPicker
+              selectedDiag={selectedDiag}
+              setSelectedDiag={setSelectedDiag}
+              customDiag={customDiag}
+              setCustomDiag={setCustomDiag}
+            />
+          </>
+        ) : (
           <View style={{flex: 1, alignItems: 'center'}}>
             <SendingAnimation
               ringColor={config.colors.primary}
@@ -186,13 +210,6 @@ export default function Preview({route, navigation}) {
             />
             <Text style={styles.sendingText}>Sending...</Text>
           </View>
-        ) : (
-          <DiagnosisPicker
-            selectedDiag={selectedDiag}
-            setSelectedDiag={setSelectedDiag}
-            customDiag={customDiag}
-            setCustomDiag={setCustomDiag}
-          />
         )}
 
         <View style={styles.buttonsContainer}>
@@ -218,18 +235,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  image: {
-    marginTop: 40,
-    resizeMode: 'contain',
+  videoWrapper: {
     flex: 1,
+    height: '70%',
+    width: '70%',
+    position: 'absolute',
+    zIndex: 1
   },
 
   video: {
-    margin: 40,
-    flex: 1,
+    height: '100%',
+    width: '100%',
     position: 'absolute',
-    height: '70%',
-    width: '70%',
   },
 
   buttonsContainer: {
@@ -242,15 +259,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-around',
     top: 0,
-  },
-
-  rotateIcon: {
-    width: 50,
-    height: 50,
-  },
-
-  rotateButton: {
-    zIndex: 10,
   },
 
   button: {

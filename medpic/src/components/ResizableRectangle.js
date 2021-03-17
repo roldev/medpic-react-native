@@ -8,8 +8,14 @@ import {
 
 import config from '../config';
 
-export default function ResizableRectangle({rect, setRect, externalStyle}) {
-  
+export default function ResizableRectangle({
+  rect,
+  setRect,
+  limitingRect,
+  externalStyle,
+}) {
+  const resizeableRectRef = useRef(null);
+
   // pan
   const panRef = useRef(null);
   const [pos, setPos] = useState({
@@ -42,31 +48,46 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
     {useNativeDriver: true},
   );
 
-  const handlePanStateChange = (event) => {
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      let newLastOffsetX = pos.lastOffset.x + event.nativeEvent.translationX;
-      let newLastOffsetY = pos.lastOffset.y + event.nativeEvent.translationY;
-            
-      setPos({
-        ...pos,
-        lastOffset: {
-          x: newLastOffsetX,
-          y: newLastOffsetY,
-        },
-      });
+  const handlePanStateChange = ({nativeEvent}) => {
+    if (nativeEvent.oldState === State.ACTIVE && resizeableRectRef.current) {
+      resizeableRectRef.current.measureInWindow((x, y, width, height) => {
+        let newLastOffsetX = pos.lastOffset.x + nativeEvent.translationX;
+        if (x < limitingRect.x) {
+          newLastOffsetX += limitingRect.x - x;
+        }
+        if (x + width > limitingRect.x + limitingRect.width) {
+          newLastOffsetX += (limitingRect.x + limitingRect.width) - (x + width);
+        }
 
-      pos.translateX.setOffset(newLastOffsetX);
-      pos.translateX.setValue(0);
-      pos.translateY.setOffset(newLastOffsetY);
-      pos.translateY.setValue(0);
+        let newLastOffsetY = pos.lastOffset.y + nativeEvent.translationY;
+        if (y < limitingRect.y) {
+          newLastOffsetY += limitingRect.y - y;
+        }
+        if (y + height > limitingRect.y + limitingRect.y + width) {
+          newLastOffsetY += (limitingRect.y + limitingRect.height) - (y + height);
+        }
 
-      const newX = rect.x + event.nativeEvent.translationX;
-      const newY = rect.y + event.nativeEvent.translationY;
+        setPos({
+          ...pos,
+          lastOffset: {
+            x: newLastOffsetX,
+            y: newLastOffsetY,
+          },
+        });
 
-      setRect({
-        ...rect,
-        x: newX,
-        y: newY,
+        pos.translateX.setOffset(newLastOffsetX);
+        pos.translateX.setValue(0);
+        pos.translateY.setOffset(newLastOffsetY);
+        pos.translateY.setValue(0);
+
+        const newX = rect.x + nativeEvent.translationX;
+        const newY = rect.y + nativeEvent.translationY;
+
+        setRect({
+          ...rect,
+          x: newX,
+          y: newY,
+        });
       });
     }
   };
@@ -99,18 +120,19 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
   };
 
   return (
-    <PanGestureHandler
-      onGestureEvent={handlePanEvent}
-      onHandlerStateChange={handlePanStateChange}
-      ref={panRef}
-      simultaneousHandlers={zoomRef}>
+    <PinchGestureHandler
+      onGestureEvent={handlePinchEvent}
+      onHandlerStateChange={handlePinchStateChange}
+      ref={zoomRef}
+      simultaneousHandlers={panRef}>
       <Animated.View style={styles.wrapper}>
-        <PinchGestureHandler
-          onGestureEvent={handlePinchEvent}
-          onHandlerStateChange={handlePinchStateChange}
-          ref={zoomRef}
-          simultaneousHandlers={panRef}>
+        <PanGestureHandler
+          onGestureEvent={handlePanEvent}
+          onHandlerStateChange={handlePanStateChange}
+          ref={panRef}
+          simultaneousHandlers={zoomRef}>
           <Animated.View
+            ref={resizeableRectRef}
             style={[
               externalStyle,
               styles.box,
@@ -132,9 +154,9 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
               },
             ]}
           />
-        </PinchGestureHandler>
+        </PanGestureHandler>
       </Animated.View>
-    </PanGestureHandler>
+    </PinchGestureHandler>
   );
 }
 
