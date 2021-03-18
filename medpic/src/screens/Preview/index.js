@@ -36,8 +36,8 @@ export default function Preview({route, navigation}) {
 
   useEffect(() => {
     if (originalRectRef.current) {
-      originalRectRef.current.measureInWindow((x, y, width, height) => {
-        setOriginalRect({x, y, width, height});
+      originalRectRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setOriginalRect({x, y, width, height, pageX, pageY});
       });
     }
   });
@@ -161,12 +161,13 @@ export default function Preview({route, navigation}) {
   };
 
   const handleVideoOnLayout = (event) => {
+    const innerOffset = 30;
     event.target.measure((x, y, width, height, pageX, pageY) => {
       setInnerRect({
-        x: x,
-        y: y,
-        height: height,
-        width: width,
+        x: x + innerOffset,
+        y: y + innerOffset,
+        height: height - innerOffset,
+        width: width - innerOffset,
       });
     });
   };

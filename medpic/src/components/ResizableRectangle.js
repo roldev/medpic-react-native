@@ -50,21 +50,21 @@ export default function ResizableRectangle({
 
   const handlePanStateChange = ({nativeEvent}) => {
     if (nativeEvent.oldState === State.ACTIVE && resizeableRectRef.current) {
-      resizeableRectRef.current.measureInWindow((x, y, width, height) => {
+      resizeableRectRef.current.measure((x, y, width, height, pageX, pageY) => {
         let newLastOffsetX = pos.lastOffset.x + nativeEvent.translationX;
-        if (x < limitingRect.x) {
-          newLastOffsetX += limitingRect.x - x;
+        if (pageX < limitingRect.pageX) {
+          newLastOffsetX += limitingRect.pageX - pageX;
         }
-        if (x + width > limitingRect.x + limitingRect.width) {
-          newLastOffsetX += (limitingRect.x + limitingRect.width) - (x + width);
+        if (pageX + width > limitingRect.pageX + limitingRect.width) {
+          newLastOffsetX += limitingRect.pageX + limitingRect.width - (pageX + width);
         }
 
         let newLastOffsetY = pos.lastOffset.y + nativeEvent.translationY;
-        if (y < limitingRect.y) {
-          newLastOffsetY += limitingRect.y - y;
+        if (pageY < limitingRect.pageY) {
+          // issue implementing
         }
-        if (y + height > limitingRect.y + limitingRect.y + width) {
-          newLastOffsetY += (limitingRect.y + limitingRect.height) - (y + height);
+        if (pageY + height > limitingRect.pageY + limitingRect.pageY + height) {
+          newLastOffsetY += limitingRect.pageY + limitingRect.height - (pageY + height);
         }
 
         setPos({
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   box: {
     backgroundColor: 'transparent',
     borderColor: config.colors.primary,
-    borderWidth: 2,
+    borderWidth: 3,
     borderRadius: 5,
   },
 });
