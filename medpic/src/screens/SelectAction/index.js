@@ -58,20 +58,20 @@ export default function SelectAction({navigation}) {
   return (
     <View style={styles.container}>
       <View style={styles.buttonsCotainer}>
-        <TouchableOpacity onPress={pickImage} style={styles.button}>
-          <Text style={styles.buttonText}>Pick a video</Text>
-        </TouchableOpacity>
-
         {permissions.camera && (
           <TouchableOpacity onPress={recordVideo} style={styles.button}>
             <Text style={styles.buttonText}>Record a video</Text>
           </TouchableOpacity>
         )}
+        
+        <TouchableOpacity onPress={pickImage} style={styles.button}>
+          <Text style={styles.buttonText}>Pick a video</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={goToLogin} style={styles.button}>
           <Text style={styles.buttonText}>Update Personal Data</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={goToExplanation} style={styles.button}>
           <Text style={styles.buttonText}>What should I do?</Text>
         </TouchableOpacity>
