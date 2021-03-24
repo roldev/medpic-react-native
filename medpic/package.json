@@ -11,7 +11,7 @@
     "increment-project-version": "npm version patch --message \"Setting version to %s\"",
     "version": "react-native-version --legacy --never-increment-build",
     "increment-native-build-number": "react-native-version --legacy --increment-build",
-    "postversion": "git add package.json && git add package-lock.json && git commit -m \"version bump\" && git push && git push --tags"
+    "postversion": "git add package.json && git add package-lock.json && git push && git push --tags"
   },
   "dependencies": {
     "@expo/vector-icons": "^12.0.3",
