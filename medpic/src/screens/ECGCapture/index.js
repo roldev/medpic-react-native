@@ -14,6 +14,7 @@ export default function ECGCapture({navigation}) {
   const [isRecording, setIsRecording] = useState(false);
   const [video, setVideo] = useState(null);
   const [shouldContinue, setShouldContinue] = useState(true);
+  const [cameraTorchState, setCameraTorchState] = useState(RNCamera.Constants.FlashMode.off);
 
   useEffect(() => {
     if (shouldContinue && video) {
@@ -44,6 +45,7 @@ export default function ECGCapture({navigation}) {
       return;
     }
 
+    setCameraTorchState(RNCamera.Constants.FlashMode.torch);
     setIsRecording(true);
 
     cameraRef.current.recordAsync({
@@ -69,7 +71,7 @@ export default function ECGCapture({navigation}) {
   return (
     <View style={styles.container}>
       <RNCamera
-        flashMode={RNCamera.Constants.FlashMode.torch}
+        flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
         type={RNCamera.Constants.Type.back}
         ratio={'16:9'}
