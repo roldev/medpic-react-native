@@ -1,6 +1,6 @@
 {
   "name": "medpic",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "increment-project-version": "npm version patch --message \"Setting version to %s\"",
     "version": "react-native-version --legacy --never-increment-build",
-    "increment-native-build-number": "react-native-version --legacy --increment-build"
+    "increment-native-build-number": "react-native-version --legacy --increment-build",
+    "postversion": "git add package.json && git add package-lock.json && git push && git push --tags"
   },
   "dependencies": {
     "@expo/vector-icons": "^12.0.3",
