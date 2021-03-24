@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {RNCamera} from 'react-native-camera';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import Torch from 'react-native-torch';
@@ -12,6 +12,19 @@ import config from '../../config';
 export default function ECGCapture({navigation}) {
   const cameraRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [video, setVideo] = useState(null);
+  const [shouldContinue, setShouldContinue] = useState(true);
+
+  useEffect(() => {
+    if (shouldContinue && video) {
+      navigation.navigate('Preview', {
+        video,
+      });
+    }
+
+    setVideo(null);
+    setShouldContinue(true);
+  }, [video]);
 
   const recordVideo = () => {
     const appPermissions = new AppPermissions();
@@ -33,19 +46,20 @@ export default function ECGCapture({navigation}) {
 
     setIsRecording(true);
 
-    cameraRef.current
-      .recordAsync({
-        quality: RNCamera.Constants.VideoQuality['2160p'],
-        maxDuration: 10,
-        mute: true,
-      })
-      .then((video) => {
+    cameraRef.current.recordAsync({
+      quality: RNCamera.Constants.VideoQuality['2160p'],
+      maxDuration: 10,
+      mute: true,
+    }).then((recordedVideo) => {
         setIsRecording(false);
         Torch.switchState(false);
-        navigation.navigate('Preview', {
-          video,
-        });
-      });
+        setVideo(recordedVideo);
+      })
+  };
+
+  const cancelVideoRecord = () => {
+    setShouldContinue(false);
+    stopVideoRecord();
   };
 
   const stopVideoRecord = () => {
@@ -73,13 +87,23 @@ export default function ECGCapture({navigation}) {
                 seconds={10}
                 countDownColor={config.colors.secondary}
               />
-              <FontAwesome.Button
-                name="stop-circle"
-                onPress={stopVideoRecord}
-                backgroundColor="transparent"
-                size={60}
-                style={styles.fontAwesome}
-              />
+              <View style={styles.buttonsWrapper}>
+                <FontAwesome.Button
+                  name="arrow-circle-left"
+                  onPress={cancelVideoRecord}
+                  color={config.colors.error}
+                  backgroundColor="transparent"
+                  size={65}
+                  style={styles.leftIcon}
+                />
+                <FontAwesome.Button
+                  name="stop-circle"
+                  onPress={stopVideoRecord}
+                  backgroundColor="transparent"
+                  size={65}
+                  style={styles.middleIcon}
+                />
+              </View>
             </>
           ) : (
             <FontAwesome.Button
@@ -87,7 +111,7 @@ export default function ECGCapture({navigation}) {
               onPress={recordVideo}
               backgroundColor="transparent"
               size={50}
-              style={styles.fontAwesome}
+              style={styles.middleIcon}
             />
           )}
         </View>
@@ -122,7 +146,14 @@ const styles = StyleSheet.create({
     backgroundColor: config.colors.primary,
   },
 
-  fontAwesome: {
+  middleIcon: {
     marginRight: -10,
+  },
+
+  buttonsWrapper: {
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
