@@ -60,7 +60,7 @@ export default function Login({navigation}) {
         data[USER_PHONE_KEY] &&
         data[USER_IP_KEY]
       ) {
-        navigation.navigate('SelectAction');
+        navigateToNextPage();
       }
     });
   }, []);
@@ -92,6 +92,10 @@ export default function Login({navigation}) {
     }
 
     setUserData({...userData, location: finalLocation});
+  };
+
+  const navigateToNextPage = () => {
+    navigation.navigate('Explanation');
   };
 
   const handleSave = async () => {
@@ -126,11 +130,7 @@ export default function Login({navigation}) {
       USER_IP_KEY: userData.ip,
     });
 
-    userStoreAccess.getVal(USER_HAS_AGREED_KEY).then((hasAgreed) => {
-      const nextPage =
-        hasAgreed == 'true' ? 'SelectAction' : 'Explanation';
-      navigation.navigate(nextPage);
-    });
+    navigateToNextPage();
   };
 
   return (
