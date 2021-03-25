@@ -3,6 +3,7 @@ import {RNCamera} from 'react-native-camera';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import Torch from 'react-native-torch';
 import {FontAwesome} from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import CountDownBlink from './components/CountDownBlink';
 
@@ -90,12 +91,11 @@ export default function ECGCapture({navigation}) {
                 countDownColor={config.colors.secondary}
               />
               <View style={styles.buttonsWrapper}>
-                <FontAwesome.Button
-                  name="arrow-circle-left"
+                <Icon.Button
+                  name="video-slash"
                   onPress={cancelVideoRecord}
-                  color={config.colors.error}
                   backgroundColor="transparent"
-                  size={65}
+                  size={55}
                   style={styles.leftIcon}
                 />
                 <FontAwesome.Button

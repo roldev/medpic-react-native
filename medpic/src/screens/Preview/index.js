@@ -31,8 +31,10 @@ export default function Preview({route, navigation}) {
   const [isSending, setIsSending] = useState(false);
 
   const originalRectRef = useRef(null);
-  const [originalRect, setOriginalRect] = useState({})
+  const [originalRect, setOriginalRect] = useState({});
   const [innerRect, setInnerRect] = useState({});
+
+  const [abortController] = useState(new AbortController());
 
   useEffect(() => {
     if (originalRectRef.current) {
@@ -41,6 +43,11 @@ export default function Preview({route, navigation}) {
       });
     }
   });
+
+  const cancelSend = () => {
+    abortController.abort();
+    setIsSending(false);
+  };
 
   const send = async () => {
     setIsSending(true);
@@ -76,6 +83,7 @@ export default function Preview({route, navigation}) {
     fetch(`${config.urls.baseUrl}${config.urls.paths.uploadimage}`, {
       method: 'POST',
       body: formData,
+      signal: abortController.signal,
     })
       .then((res) => {
         if (!res.ok) {
@@ -124,7 +132,11 @@ export default function Preview({route, navigation}) {
           });
       })
       .catch((error) => {
-        Alert.alert('There was an error sending', '', [
+        const errorHeader =
+          error.name === 'AbortError'
+            ? 'Sending canceled'
+            : 'There was an error sending';
+        Alert.alert(errorHeader, '', [
           {
             text: 'OK',
             onPress: () => {
@@ -171,8 +183,8 @@ export default function Preview({route, navigation}) {
       });
     });
   };
-  
-  return (
+
+  return !isSending ? (
     <View style={styles.container}>
       <View style={styles.previewWrapper}>
         <Text style={styles.resizeExplain}>
@@ -181,43 +193,51 @@ export default function Preview({route, navigation}) {
         <Text style={styles.leftSide}>
           This is the left side of the ECG plot
         </Text>
-        {!isSending && video ? (
-          <>
-            <View style={styles.videoWrapper} ref={originalRectRef}>
-              <ResizableRectangle rect={innerRect} setRect={setInnerRect} limitingRect={originalRect} />
-              <Video
-                source={video}
-                rate={1.0}
-                isMuted={true}
-                resizeMode="contain"
-                shouldPlay={true}
-                isLooping={true}
-                style={styles.video}
-                onLayout={handleVideoOnLayout}
-              />
-            </View>
-            <DiagnosisPicker
-              selectedDiag={selectedDiag}
-              setSelectedDiag={setSelectedDiag}
-              customDiag={customDiag}
-              setCustomDiag={setCustomDiag}
-            />
-          </>
-        ) : (
-          <View style={{flex: 1, alignItems: 'center'}}>
-            <SendingAnimation
-              ringColor={config.colors.primary}
-              ballColor={config.colors.primary}
-            />
-            <Text style={styles.sendingText}>Sending...</Text>
-          </View>
-        )}
-
+        <View style={styles.videoWrapper} ref={originalRectRef}>
+          <ResizableRectangle
+            rect={innerRect}
+            setRect={setInnerRect}
+            limitingRect={originalRect}
+          />
+          <Video
+            source={video}
+            rate={1.0}
+            isMuted={true}
+            resizeMode="contain"
+            shouldPlay={true}
+            isLooping={true}
+            style={styles.video}
+            onLayout={handleVideoOnLayout}
+          />
+        </View>
+        <DiagnosisPicker
+          selectedDiag={selectedDiag}
+          setSelectedDiag={setSelectedDiag}
+          customDiag={customDiag}
+          setCustomDiag={setCustomDiag}
+        />
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity onPress={send} style={styles.button}>
-            <Text style={styles.buttonText}>SUBMIT</Text>
+          <TouchableOpacity onPress={send} style={[styles.button, styles.send]}>
+            <Text style={styles.sendText}>SUBMIT</Text>
           </TouchableOpacity>
         </View>
+      </View>
+    </View>
+  ) : (
+    <View style={styles.container}>
+      <View style={styles.previewWrapper}>
+        <SendingAnimation
+          ringColor={config.colors.primary}
+          ballColor={config.colors.primary}
+        />
+        <Text style={styles.sendingText}>Sending...</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          onPress={cancelSend}
+          style={[styles.button, styles.cancelSend]}>
+          <Text style={styles.cancelSendText}>CANCEL</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -241,7 +261,7 @@ const styles = StyleSheet.create({
     height: '70%',
     width: '70%',
     position: 'absolute',
-    zIndex: 1
+    zIndex: 1,
   },
 
   video: {
@@ -268,12 +288,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 20,
     height: 50,
-    backgroundColor: config.colors.primary,
     zIndex: 15,
   },
 
-  buttonText: {
+  send: {
+    backgroundColor: config.colors.primary,
+  },
+
+  sendText: {
     color: 'white',
+  },
+
+  cancelSend: {
+    backgroundColor: 'white',
+  },
+
+  cancelSendText: {
+    color: 'black',
   },
 
   input: {
