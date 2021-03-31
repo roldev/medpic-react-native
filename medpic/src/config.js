@@ -16,4 +16,7 @@ export default config = {
       diagnosisOptions: 'diagnosis-options',
     },
   },
+  consts: {
+    videoDuration: 3
+  }
 };

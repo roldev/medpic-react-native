@@ -51,7 +51,7 @@ export default function ECGCapture({navigation}) {
 
     cameraRef.current.recordAsync({
       quality: RNCamera.Constants.VideoQuality['2160p'],
-      maxDuration: 10,
+      maxDuration: config.consts.videoDuration,
       mute: true,
     }).then((recordedVideo) => {
         setIsRecording(false);
@@ -87,7 +87,7 @@ export default function ECGCapture({navigation}) {
           {isRecording ? (
             <>
               <CountDownBlink
-                seconds={10}
+                seconds={config.consts.videoDuration}
                 countDownColor={config.colors.secondary}
               />
               <View style={styles.buttonsWrapper}>
