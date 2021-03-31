@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import CountDownBlink from './components/CountDownBlink';
 
+import ResizableRectangle from '../../components/ResizableRectangle';
 import AppPermissions from '../../utils/AppPermissions';
 import config from '../../config';
 
@@ -16,6 +17,7 @@ export default function ECGCapture({navigation}) {
   const [video, setVideo] = useState(null);
   const [shouldContinue, setShouldContinue] = useState(true);
   const [cameraTorchState, setCameraTorchState] = useState(RNCamera.Constants.FlashMode.off);
+  const [innerRect, setInnerRect] = useState({});
 
   useEffect(() => {
     if (shouldContinue && video) {
@@ -69,8 +71,42 @@ export default function ECGCapture({navigation}) {
     cameraRef.current.stopRecording();
   };
 
+  const handleCameraLoad = (event) => {
+    const innerOffset = 30;
+    event.target.measure((x, y, width, height, pageX, pageY) => {
+      setInnerRect({
+        x: x + 5,
+        y: y + innerOffset + innerOffset,
+        height: height - innerOffset,
+        width: width - innerOffset,
+      });
+    });
+  };
+
+  const calcRectPixels = (imageWidth, imageHeight) => {
+    const xRatio = innerRect.x / Dimensions.get('window').width;
+    let originX = imageWidth * xRatio;
+
+    const widthRatio = innerRect.width / Dimensions.get('window').width;
+    let width = imageWidth * widthRatio;
+
+    const yRatio = innerRect.y / Dimensions.get('window').height;
+    let originY = (imageHeight + 100) * yRatio;
+
+    const heightRatio = innerRect.height / Dimensions.get('window').height;
+    let height = imageHeight * heightRatio;
+
+    return {
+      originX: originY,
+      originY: originX,
+      width: width,
+      height: height,
+    };
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container}
+      onLayout={handleCameraLoad}>
       <RNCamera
         flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
@@ -83,6 +119,11 @@ export default function ECGCapture({navigation}) {
           <Text style={styles.leftSide}>
             This is the left side of the ECG plot
           </Text>
+
+          <ResizableRectangle
+            rect={innerRect}
+            setRect={setInnerRect}
+          />
 
           {isRecording ? (
             <>

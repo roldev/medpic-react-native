@@ -13,7 +13,6 @@ import {v4 as uuidv4} from 'uuid';
 
 import DiagnosisPicker from './components/DiagnosisPicker';
 import SendingAnimation from './components/SendingAnimation';
-import ResizableRectangle from '../../components/ResizableRectangle';
 
 import UserData, {USER_ID_KEY} from '../../store/UserData';
 import config from '../../config';
@@ -30,19 +29,7 @@ export default function Preview({route, navigation}) {
 
   const [isSending, setIsSending] = useState(false);
 
-  const originalRectRef = useRef(null);
-  const [originalRect, setOriginalRect] = useState({});
-  const [innerRect, setInnerRect] = useState({});
-
   const [abortController] = useState(new AbortController());
-
-  useEffect(() => {
-    if (originalRectRef.current) {
-      originalRectRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setOriginalRect({x, y, width, height, pageX, pageY});
-      });
-    }
-  });
 
   const cancelSend = () => {
     abortController.abort();
@@ -76,7 +63,7 @@ export default function Preview({route, navigation}) {
         selectedDiags: selectedDiag.join(','),
         customDiag: customDiag,
         angle: 0,
-        overlay: calcRectPixels(video.width, video.height),
+        overlay: rect,
       }),
     );
 
@@ -151,54 +138,10 @@ export default function Preview({route, navigation}) {
       });
   };
 
-  const calcRectPixels = (imageWidth, imageHeight) => {
-    const xRatio = innerRect.x / Dimensions.get('window').width;
-    let originX = imageWidth * xRatio;
-
-    const widthRatio = innerRect.width / Dimensions.get('window').width;
-    let width = imageWidth * widthRatio;
-
-    const yRatio = innerRect.y / Dimensions.get('window').height;
-    let originY = (imageHeight + 100) * yRatio;
-
-    const heightRatio = innerRect.height / Dimensions.get('window').height;
-    let height = imageHeight * heightRatio;
-
-    return {
-      originX: originY,
-      originY: originX,
-      width: width,
-      height: height,
-    };
-  };
-
-  const handleVideoOnLayout = (event) => {
-    const innerOffset = 30;
-    event.target.measure((x, y, width, height, pageX, pageY) => {
-      setInnerRect({
-        x: x + innerOffset,
-        y: y + innerOffset,
-        height: height - innerOffset,
-        width: width - innerOffset,
-      });
-    });
-  };
-
   return !isSending ? (
     <View style={styles.container}>
-      <View style={styles.previewWrapper}>
-        <Text style={styles.resizeExplain}>
-          Pinch and pan to fit ECG to red frame
-        </Text>
-        <Text style={styles.leftSide}>
-          This is the left side of the ECG plot
-        </Text>
-        <View style={styles.videoWrapper} ref={originalRectRef}>
-          <ResizableRectangle
-            rect={innerRect}
-            setRect={setInnerRect}
-            limitingRect={originalRect}
-          />
+      <View style={styles.previewWrapper}>        
+        <View style={styles.videoWrapper}>
           <Video
             source={video}
             rate={1.0}
@@ -207,7 +150,6 @@ export default function Preview({route, navigation}) {
             shouldPlay={true}
             isLooping={true}
             style={styles.video}
-            onLayout={handleVideoOnLayout}
           />
         </View>
         <DiagnosisPicker
@@ -321,14 +263,6 @@ const styles = StyleSheet.create({
   inputText: {
     height: 50,
     color: 'white',
-  },
-
-  resizeExplain: {
-    position: 'absolute',
-    color: config.colors.primary,
-    fontWeight: 'bold',
-    top: 50,
-    alignSelf: 'center',
   },
 
   leftSide: {

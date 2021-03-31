@@ -11,7 +11,6 @@ import config from '../config';
 export default function ResizableRectangle({
   rect,
   setRect,
-  limitingRect,
   externalStyle,
 }) {
   const resizeableRectRef = useRef(null);
@@ -52,21 +51,9 @@ export default function ResizableRectangle({
     if (nativeEvent.oldState === State.ACTIVE && resizeableRectRef.current) {
       resizeableRectRef.current.measure((x, y, width, height, pageX, pageY) => {
         let newLastOffsetX = pos.lastOffset.x + nativeEvent.translationX;
-        if (pageX < limitingRect.pageX) {
-          newLastOffsetX += limitingRect.pageX - pageX;
-        }
-        if (pageX + width > limitingRect.pageX + limitingRect.width) {
-          newLastOffsetX += limitingRect.pageX + limitingRect.width - (pageX + width);
-        }
-
+        
         let newLastOffsetY = pos.lastOffset.y + nativeEvent.translationY;
-        if (pageY < limitingRect.pageY) {
-          // issue implementing
-        }
-        if (pageY + height > limitingRect.pageY + limitingRect.pageY + height) {
-          newLastOffsetY += limitingRect.pageY + limitingRect.height - (pageY + height);
-        }
-
+        
         setPos({
           ...pos,
           lastOffset: {
@@ -137,6 +124,8 @@ export default function ResizableRectangle({
               externalStyle,
               styles.box,
               {
+                top: rect.y,
+                left: rect.x,
                 height: rect.height,
                 width: rect.width,
               },
@@ -165,7 +154,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    zIndex: 15,
   },
 
   box: {
