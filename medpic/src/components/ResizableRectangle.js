@@ -50,30 +50,28 @@ export default function ResizableRectangle({
   const handlePanStateChange = ({nativeEvent}) => {
     if (nativeEvent.oldState === State.ACTIVE && resizeableRectRef.current) {
       resizeableRectRef.current.measure((x, y, width, height, pageX, pageY) => {
-        let newLastOffsetX = pos.lastOffset.x + nativeEvent.translationX;
-        
-        let newLastOffsetY = pos.lastOffset.y + nativeEvent.translationY;
-        
-        setPos({
-          ...pos,
-          lastOffset: {
-            x: newLastOffsetX,
-            y: newLastOffsetY,
-          },
-        });
-
-        pos.translateX.setOffset(newLastOffsetX);
+        let offsetX = pos.lastOffset.x;
+        if(pageX > 0 && (pageX + width) < Dimensions.get('window').width) {
+          offsetX += nativeEvent.translationX;
+          
+        }
+        pos.translateX.setOffset(offsetX);
         pos.translateX.setValue(0);
-        pos.translateY.setOffset(newLastOffsetY);
+
+        let offsetY = pos.lastOffset.y;
+        if(pageY > 0 && (pageY + height) < Dimensions.get('window').height) {
+          offsetY += nativeEvent.translationY;
+        }
+        pos.translateY.setOffset(offsetY);
         pos.translateY.setValue(0);
 
-        const newX = rect.x + nativeEvent.translationX;
-        const newY = rect.y + nativeEvent.translationY;
-
-        setRect({
-          ...rect,
-          x: newX,
-          y: newY,
+        setPos({
+          translateX: pos.translateX,
+          translateY: pos.translateY,
+          lastOffset: {
+            x: offsetX,
+            y: offsetY,
+          },
         });
       });
     }
