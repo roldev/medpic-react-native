@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import CountDownBlink from './components/CountDownBlink';
 
-import ResizableRectangle from '../../components/ResizableRectangle';
+import ResizableRectangle from '../../components/ResizeableRectangle';
 import AppPermissions from '../../utils/AppPermissions';
 import config from '../../config';
 
