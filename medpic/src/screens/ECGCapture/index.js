@@ -72,11 +72,11 @@ export default function ECGCapture({navigation}) {
   };
 
   const handleCameraLoad = (event) => {
-    const innerOffset = 30;
+    const innerOffset = 100;
     event.target.measure((x, y, width, height, pageX, pageY) => {
       setInnerRect({
-        x: x + 5,
-        y: y + innerOffset + innerOffset,
+        x: x,
+        y: y,
         height: height - innerOffset,
         width: width - innerOffset,
       });
@@ -105,8 +105,7 @@ export default function ECGCapture({navigation}) {
   };
 
   return (
-    <View style={styles.container}
-      onLayout={handleCameraLoad}>
+    <View style={styles.container} onLayout={handleCameraLoad}>
       <RNCamera
         flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
@@ -120,14 +119,13 @@ export default function ECGCapture({navigation}) {
             This is the left side of the ECG plot
           </Text>
 
-          <ResizableRectangle
-            rect={innerRect}
-            setRect={setInnerRect}
-          />
-
+          <ResizableRectangle rect={innerRect} setRect={setInnerRect} />
+        </View>
+        <View style={styles.actionsWrapper}>
           {isRecording ? (
             <>
               <CountDownBlink
+                style={styles.countDownBlink}
                 seconds={config.consts.videoDuration}
                 countDownColor={config.colors.secondary}
               />
@@ -149,13 +147,15 @@ export default function ECGCapture({navigation}) {
               </View>
             </>
           ) : (
-            <FontAwesome.Button
-              name="video-camera"
-              onPress={recordVideo}
-              backgroundColor="transparent"
-              size={50}
-              style={styles.middleIcon}
-            />
+            <View style={styles.buttonsWrapper}>
+              <FontAwesome.Button
+                name="video-camera"
+                onPress={recordVideo}
+                backgroundColor="transparent"
+                size={50}
+                style={styles.middleIcon}
+              />
+            </View>
           )}
         </View>
       </RNCamera>
@@ -177,8 +177,15 @@ const styles = StyleSheet.create({
   overlayWrapper: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+
+  actionsWrapper: {
+    backgroundColor: 'transparent',
     alignItems: 'center',
+    alignContent: 'center',
     justifyContent: 'flex-end',
+    width: 100,
+    alignSelf: 'center',
   },
 
   leftSide: {
@@ -190,7 +197,7 @@ const styles = StyleSheet.create({
   },
 
   middleIcon: {
-    marginRight: -10,
+    alignSelf: 'center',
   },
 
   buttonsWrapper: {
@@ -198,5 +205,9 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  countDownBlink: {
+    alignSelf: 'center',
   },
 });
