@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {RNCamera} from 'react-native-camera';
-import {View, Text, StyleSheet, Alert} from 'react-native';
+import {View, Text, StyleSheet, Alert, Dimensions} from 'react-native';
 import Torch from 'react-native-torch';
 import {FontAwesome} from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -22,6 +22,7 @@ export default function ECGCapture({navigation}) {
   useEffect(() => {
     if (shouldContinue && video) {
       navigation.navigate('Preview', {
+        rect: calcRectPixels(video.width, video.height),
         video,
       });
     }
@@ -52,7 +53,7 @@ export default function ECGCapture({navigation}) {
     setIsRecording(true);
 
     cameraRef.current.recordAsync({
-      quality: RNCamera.Constants.VideoQuality['2160p'],
+      quality: RNCamera.Constants.VideoQuality['1080p'],
       maxDuration: config.consts.videoDuration,
       mute: true,
     }).then((recordedVideo) => {
@@ -84,9 +85,13 @@ export default function ECGCapture({navigation}) {
   };
 
   const calcRectPixels = (imageWidth, imageHeight) => {
+    // this is to support the requested ratio (while there are no width/height values from recorded videos)
+    imageWidth = 1080;
+    imageHeight = 1920;
+
     const xRatio = innerRect.x / Dimensions.get('window').width;
     let originX = imageWidth * xRatio;
-
+    
     const widthRatio = innerRect.width / Dimensions.get('window').width;
     let width = imageWidth * widthRatio;
 
@@ -109,8 +114,8 @@ export default function ECGCapture({navigation}) {
       <RNCamera
         flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
+        ratio='16:9'
         type={RNCamera.Constants.Type.back}
-        ratio={'16:9'}
         zoom={0}
         ref={cameraRef}
         style={styles.camera}>

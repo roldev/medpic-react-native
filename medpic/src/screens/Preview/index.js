@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ export default function Preview({route, navigation}) {
   }
 
   const [video, setVideo] = useState(route.params.video);
+  const [rect] = useState(route.params.rect);
 
   const [selectedDiag, setSelectedDiag] = useState([]);
   const [customDiag, setCustomDiag] = useState(null);
@@ -40,6 +41,17 @@ export default function Preview({route, navigation}) {
     setIsSending(true);
 
     const filename = uuidv4() + '.mp4';
+
+    // when video is chosen there's no frame, but there is a size
+    let finalRect = rect;
+    if(!finalRect) {
+      finalRect = {
+        originX: 0,
+        originY: 0,
+        width: video.width,
+        height: video.height,
+      };
+    }
 
     const userStoreAccess = new UserData();
     const userData = await userStoreAccess.getData();
@@ -63,7 +75,7 @@ export default function Preview({route, navigation}) {
         selectedDiags: selectedDiag.join(','),
         customDiag: customDiag,
         angle: 0,
-        overlay: rect,
+        overlay: finalRect,
       }),
     );
 

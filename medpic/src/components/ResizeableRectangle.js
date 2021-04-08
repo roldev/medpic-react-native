@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Animated, PanResponder} from 'react-native';
-import { act } from 'react-test-renderer';
+import {act} from 'react-test-renderer';
 
 import config from '../config';
 
@@ -20,24 +20,22 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
     width: 0,
     height: 0,
   });
-  const [hasChangedRect, setHasChangedRect] = useState(false);
-  const [actualRect, setActualRect] = useState({
-    topLeft: {
-      x: 0,
-      y: 0,
-    },
-    topRight: {
-      x: 0,
-      y: 0,
-    },
-    bottomLeft: {
-      x: 0,
-      y: 0,
-    },
-    bottomRight: {
-      x: 0,
-      y: 0,
-    },
+  const [rectChangeCount, setRectChangeCount] = useState(0);
+  const [actualTopLeft, setActualTopLeft] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [actualTopRight, setActualTopRight] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [actualBottomLeft, setActualBottomLeft] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [actualBottomRight, setActualBottomRight] = useState({
+    x: 0,
+    y: 0,
   });
 
   const buildCorner = (cornerName) => {
@@ -88,65 +86,49 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
   ] = buildCorner(BOTTOM_RIGHT);
 
   useEffect(() => {
-    if((Object.keys(rect).length > 0) && originalRect.width == 0) {
+    if (Object.keys(rect).length > 0 && originalRect.width == 0) {
       setOriginalRect(rect);
     }
   }, [JSON.stringify(rect)]);
 
   useEffect(() => {
-    if (hasChangedRect) {
-      topLeftElementRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setActualRect({
-          ...actualRect,
-          topLeft: {
-            x: pageX,
-            y: pageY,
-          },
-        });
-      });
+    topLeftElementRef.current.measureInWindow((x, y, width, height) => {
+      setActualTopLeft({x: x, y: y});
+    });
 
-      topRightElementRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setActualRect({
-          ...actualRect,
-          topRight: {
-            x: pageX,
-            y: pageY,
-          },
-        });
-      });
-      
-      bottomLeftElementRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setActualRect({
-          ...actualRect,
-          bottomLeft: {
-            x: pageX,
-            y: pageY,
-          },
-        });
-      });
+    topRightElementRef.current.measureInWindow((x, y, width, height) => {
+      setActualTopRight({x: x, y: y});
+    });
 
-      bottomRightElementRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setActualRect({
-          ...actualRect,
-          bottomRight: {
-            x: pageX,
-            y: pageY,
-          },
-        });
-      });
-    }
+    bottomLeftElementRef.current.measureInWindow((x, y, width, height) => {
+      setActualBottomLeft({x: x, y: y});
+    });
 
-    setHasChangedRect(false);
-  }, [hasChangedRect]);
+    bottomRightElementRef.current.measureInWindow((x, y, width, height) => {
+      setActualBottomRight({x: x, y: y});
+    });
+  }, [rectChangeCount]);
 
   useEffect(() => {
+    if (
+      actualTopRight.x - actualTopLeft.x === 0 ||
+      actualBottomLeft.y - actualTopLeft.y === 0
+    ) {
+      setRectChangeCount(rectChangeCount + 1);
+    }
+
     setRect({
-      x: actualRect.topLeft.x,
-      y: actualRect.topLeft.y,
-      width: actualRect.topRight.x - actualRect.topLeft.x,
-      height: actualRect.bottomLeft.y - actualRect.topLeft.y,
+      x: actualTopLeft.x,
+      y: actualTopLeft.y,
+      width: actualTopRight.x - actualTopLeft.x,
+      height: actualBottomLeft.y - actualTopLeft.y,
     });
-  }, [JSON.stringify(actualRect)]);
+  }, [
+    JSON.stringify(actualTopLeft),
+    JSON.stringify(actualTopRight),
+    JSON.stringify(actualBottomLeft),
+    JSON.stringify(actualBottomRight),
+  ]);
 
   const snapToPoint = (leadingPoint) => {
     switch (leadingPoint) {
@@ -171,7 +153,7 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
         break;
     }
 
-    setHasChangedRect(true);
+    setRectChangeCount(rectChangeCount + 1);
   };
 
   const styles = styleBuilder({rect: originalRect});
