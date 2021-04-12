@@ -2,7 +2,6 @@ import React, {useState, useRef, useEffect} from 'react';
 import {RNCamera} from 'react-native-camera';
 import {View, Text, StyleSheet, Alert, Dimensions} from 'react-native';
 import Torch from 'react-native-torch';
-import {FontAwesome} from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import CountDownBlink from './components/CountDownBlink';
@@ -16,7 +15,9 @@ export default function ECGCapture({navigation}) {
   const [isRecording, setIsRecording] = useState(false);
   const [video, setVideo] = useState(null);
   const [shouldContinue, setShouldContinue] = useState(true);
-  const [cameraTorchState, setCameraTorchState] = useState(RNCamera.Constants.FlashMode.off);
+  const [cameraTorchState, setCameraTorchState] = useState(
+    RNCamera.Constants.FlashMode.off,
+  );
   const [innerRect, setInnerRect] = useState({});
 
   useEffect(() => {
@@ -52,15 +53,17 @@ export default function ECGCapture({navigation}) {
     setCameraTorchState(RNCamera.Constants.FlashMode.torch);
     setIsRecording(true);
 
-    cameraRef.current.recordAsync({
-      quality: RNCamera.Constants.VideoQuality['1080p'],
-      maxDuration: config.consts.videoDuration,
-      mute: true,
-    }).then((recordedVideo) => {
+    cameraRef.current
+      .recordAsync({
+        quality: RNCamera.Constants.VideoQuality['1080p'],
+        maxDuration: config.consts.videoDuration,
+        mute: true,
+      })
+      .then((recordedVideo) => {
         setIsRecording(false);
         Torch.switchState(false);
         setVideo(recordedVideo);
-      })
+      });
   };
 
   const cancelVideoRecord = () => {
@@ -91,7 +94,7 @@ export default function ECGCapture({navigation}) {
 
     const xRatio = innerRect.x / Dimensions.get('window').width;
     let originX = imageWidth * xRatio;
-    
+
     const widthRatio = innerRect.width / Dimensions.get('window').width;
     let width = imageWidth * widthRatio;
 
@@ -109,12 +112,16 @@ export default function ECGCapture({navigation}) {
     };
   };
 
+  const navigateBack = () => {
+    navigation.pop();
+  };
+
   return (
     <View style={styles.container} onLayout={handleCameraLoad}>
       <RNCamera
         flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
-        ratio='16:9'
+        ratio="16:9"
         type={RNCamera.Constants.Type.back}
         zoom={0}
         ref={cameraRef}
@@ -142,7 +149,7 @@ export default function ECGCapture({navigation}) {
                   size={55}
                   style={styles.leftIcon}
                 />
-                <FontAwesome.Button
+                <Icon.Button
                   name="stop-circle"
                   onPress={stopVideoRecord}
                   backgroundColor="transparent"
@@ -153,9 +160,17 @@ export default function ECGCapture({navigation}) {
             </>
           ) : (
             <View style={styles.buttonsWrapper}>
-              <FontAwesome.Button
-                name="video-camera"
+              <Icon.Button
+                name="arrow-alt-circle-left"
+                onPress={navigateBack}
+                backgroundColor="transparent"
+                size={50}
+                style={styles.leftIcon}
+              />
+              <Icon.Button
+                name="video"
                 onPress={recordVideo}
+                color="green"
                 backgroundColor="transparent"
                 size={50}
                 style={styles.middleIcon}
