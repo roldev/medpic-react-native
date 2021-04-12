@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import {Video} from 'expo-av';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import 'react-native-get-random-values'; // must come before uuid
 import {v4 as uuidv4} from 'uuid';
 
@@ -150,9 +151,13 @@ export default function Preview({route, navigation}) {
       });
   };
 
+  const goToSelect = () => {
+    navigation.navigate('SelectAction');
+  };
+
   return !isSending ? (
     <View style={styles.container}>
-      <View style={styles.previewWrapper}>        
+      <View style={styles.previewWrapper}>
         <View style={styles.videoWrapper}>
           <Video
             source={video}
@@ -171,6 +176,12 @@ export default function Preview({route, navigation}) {
           setCustomDiag={setCustomDiag}
         />
         <View style={styles.buttonsContainer}>
+          <Icon.Button
+            name="arrow-alt-circle-left"
+            onPress={goToSelect}
+            backgroundColor="transparent"
+            size={50}
+          />
           <TouchableOpacity onPress={send} style={[styles.button, styles.send]}>
             <Text style={styles.sendText}>SUBMIT</Text>
           </TouchableOpacity>

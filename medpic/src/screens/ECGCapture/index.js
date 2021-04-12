@@ -112,8 +112,8 @@ export default function ECGCapture({navigation}) {
     };
   };
 
-  const navigateBack = () => {
-    navigation.pop();
+  const goToSelect = () => {
+    navigation.navigate('SelectAction');
   };
 
   return (
@@ -162,7 +162,7 @@ export default function ECGCapture({navigation}) {
             <View style={styles.buttonsWrapper}>
               <Icon.Button
                 name="arrow-alt-circle-left"
-                onPress={navigateBack}
+                onPress={goToSelect}
                 backgroundColor="transparent"
                 size={50}
                 style={styles.leftIcon}
@@ -170,7 +170,7 @@ export default function ECGCapture({navigation}) {
               <Icon.Button
                 name="video"
                 onPress={recordVideo}
-                color="green"
+                color={config.colors.primary}
                 backgroundColor="transparent"
                 size={50}
                 style={styles.middleIcon}
