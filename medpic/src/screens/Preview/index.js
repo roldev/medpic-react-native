@@ -116,7 +116,7 @@ export default function Preview({route, navigation}) {
                 : 'No suggested diagnosis was returned';
 
             const alertHeader = 'Video Sent Successfully';
-            const alertMsg = `Diagnsis: ${diagnosisMessage}`;
+            const alertMsg = `${diagnosisMessage}`;
 
             Alert.alert(alertHeader, alertMsg, [
               {
