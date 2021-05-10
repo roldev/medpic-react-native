@@ -13,7 +13,12 @@ const FRAME_POINT_SHORT_SIDE = 50;
 const FRAME_POINT_LONG_SIDE = 50;
 const FRAME_POINT_BORDER_WIDTH = 2;
 
-export default function ResizableRectangle({rect, setRect, externalStyle}) {
+export default function ResizableRectangle({
+  rect,
+  setRect,
+  limitingRect,
+  externalStyle,
+}) {
   const [originalRect, setOriginalRect] = useState({
     x: 0,
     y: 0,
@@ -86,10 +91,10 @@ export default function ResizableRectangle({rect, setRect, externalStyle}) {
   ] = buildCorner(BOTTOM_RIGHT);
 
   useEffect(() => {
-    if (Object.keys(rect).length > 0 && originalRect.width == 0) {
-      setOriginalRect(rect);
+    if (Object.keys(limitingRect).length > 0 && originalRect.width == 0) {
+      setOriginalRect(limitingRect);
     }
-  }, [JSON.stringify(rect)]);
+  }, [JSON.stringify(limitingRect)]);
 
   useEffect(() => {
     topLeftElementRef.current.measureInWindow((x, y, width, height) => {
@@ -272,23 +277,11 @@ function styleBuilder({rect}) {
       height: '100%',
     },
 
-    box: {
-      backgroundColor: 'transparent',
-      borderColor: config.colors.primary,
-      borderWidth: 3,
-      borderRadius: 5,
-      position: 'absolute',
-      top: rect?.y || 50,
-      left: rect?.x || 50,
-      width: rect?.width || 100,
-      height: rect?.height || 100,
-    },
-
     topLeftPicker: {
       position: 'absolute',
       top: rect?.y || 50 - 25,
       left: rect?.x != undefined ? rect.x + 25 : 0,
-      borderColor: config.colors.primary,
+      borderColor: rect.width !== 0 ? config.colors.primary : 'transparent',
       borderLeftWidth: FRAME_POINT_BORDER_WIDTH,
       borderTopWidth: FRAME_POINT_BORDER_WIDTH,
       width: FRAME_POINT_SHORT_SIDE,

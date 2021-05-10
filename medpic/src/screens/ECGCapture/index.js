@@ -19,6 +19,7 @@ export default function ECGCapture({navigation}) {
     RNCamera.Constants.FlashMode.off,
   );
   const [innerRect, setInnerRect] = useState({});
+  const [limitingRect, setLimitingRect] = useState({});
 
   useEffect(() => {
     if (shouldContinue && video) {
@@ -78,7 +79,7 @@ export default function ECGCapture({navigation}) {
   const handleCameraLoad = (event) => {
     const innerOffset = 100;
     event.target.measure((x, y, width, height, pageX, pageY) => {
-      setInnerRect({
+      setLimitingRect({
         x: x,
         y: y,
         height: height - innerOffset,
@@ -131,7 +132,7 @@ export default function ECGCapture({navigation}) {
             This is the left side of the ECG plot
           </Text>
 
-          <ResizableRectangle rect={innerRect} setRect={setInnerRect} />
+          <ResizableRectangle rect={innerRect} setRect={setInnerRect} limitingRect={limitingRect} />
         </View>
         <View style={styles.actionsWrapper}>
           {isRecording ? (
