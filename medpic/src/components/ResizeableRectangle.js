@@ -11,7 +11,7 @@ const BOTTOM_RIGHT = 'BOTTOM_RIGHT';
 
 const FRAME_POINT_SHORT_SIDE = 50;
 const FRAME_POINT_LONG_SIDE = 50;
-const FRAME_POINT_BORDER_WIDTH = 2;
+const FRAME_POINT_BORDER_WIDTH = 7;
 
 export default function ResizableRectangle({
   rect,
