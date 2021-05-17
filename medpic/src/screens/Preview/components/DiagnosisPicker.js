@@ -10,7 +10,6 @@ export default function DiagnosisPicker({
   setCustomDiag,
 }) {
   const [items, setItems] = useState([{id: 'Other', name: 'Other'}]);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${config.urls.baseUrl}${config.urls.paths.diagnosisOptions}`)
@@ -26,17 +25,10 @@ export default function DiagnosisPicker({
   }, []);
 
   return (
-    <View
-      style={[
-        styles.pickerWrapper,
-        isPickerOpen ? styles.pickerWrapperClicked : {},
-      ]}>
+    <View style={[styles.pickerWrapper]}>
       <MultiSelect
         items={items}
         uniqueKey="id"
-        onToggleList={() => {
-          setIsPickerOpen(!isPickerOpen);
-        }}
         onSelectedItemsChange={(selectedItems) => {
           setSelectedDiag(selectedItems);
         }}
@@ -52,6 +44,7 @@ export default function DiagnosisPicker({
         searchInputPlaceholderText=""
         searchIcon={false}
         fixedHeight={true}
+        styleSelectorContainer={styles.selectorContainer}
       />
 
       {selectedDiag.indexOf('Other') !== -1 && (
@@ -79,8 +72,9 @@ const styles = StyleSheet.create({
     bottom: 70,
   },
 
-  pickerWrapperClicked: {
-    bottom: 200,
+  selectorContainer: {
+    height: 450,
+    bottom: 70,
   },
 
   customDiag: {
