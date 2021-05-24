@@ -40,9 +40,8 @@ export default function DiagnosisPicker({
         tagTextColor={config.colors.primary}
         selectedItemTextColor="red"
         selectedItemIconColor={config.colors.secondary}
-        textInputProps={{editable: false, autoFocus: false}}
-        searchInputPlaceholderText=""
-        searchIcon={false}
+        searchInputPlaceholderText="Search Diagnoses..."
+        searchInputStyle={styles.searchInput}
         fixedHeight={true}
         styleSelectorContainer={styles.selectorContainer}
       />
@@ -81,5 +80,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'white',
     height: 40,
+  },
+
+  searchInput: {
+    fontSize: 20,
   },
 });
