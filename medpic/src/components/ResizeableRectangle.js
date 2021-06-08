@@ -14,10 +14,10 @@ const FRAME_POINT_LONG_SIDE = 50;
 const FRAME_POINT_BORDER_WIDTH = 7;
 
 export default function ResizableRectangle({
-  rect,
   setRect,
   limitingRect,
   externalStyle,
+  shouldCaptureRect,
 }) {
   const [originalRect, setOriginalRect] = useState({
     x: 0,
@@ -115,19 +115,7 @@ export default function ResizableRectangle({
   }, [rectChangeCount]);
 
   useEffect(() => {
-    if (
-      actualTopRight.x - actualTopLeft.x === 0 ||
-      actualBottomLeft.y - actualTopLeft.y === 0
-    ) {
-      setRectChangeCount(rectChangeCount + 1);
-    }
-
-    setRect({
-      x: actualTopLeft.x,
-      y: actualTopLeft.y,
-      width: actualTopRight.x - actualTopLeft.x,
-      height: actualBottomLeft.y - actualTopLeft.y,
-    });
+    setRectChangeCount(rectChangeCount + 1);
   }, [
     JSON.stringify(actualTopLeft),
     JSON.stringify(actualTopRight),
@@ -160,6 +148,23 @@ export default function ResizableRectangle({
 
     setRectChangeCount(rectChangeCount + 1);
   };
+ 
+  useEffect(() => {
+    if (shouldCaptureRect) {
+      console.log('!', {
+        x: actualTopLeft.x,
+        y: actualTopLeft.y,
+        width: actualTopRight.x - actualTopLeft.x + FRAME_POINT_SHORT_SIDE,
+        height: actualBottomLeft.y - actualTopLeft.y + FRAME_POINT_LONG_SIDE,
+      });
+      setRect({
+        x: actualTopLeft.x,
+        y: actualTopLeft.y,
+        width: actualTopRight.x - actualTopLeft.x + FRAME_POINT_SHORT_SIDE,
+        height: actualBottomLeft.y - actualTopLeft.y + FRAME_POINT_LONG_SIDE,
+      });
+    }
+  }, [shouldCaptureRect]);
 
   const styles = styleBuilder({rect: originalRect});
 
@@ -271,12 +276,6 @@ export default function ResizableRectangle({
 
 function styleBuilder({rect}) {
   return {
-    screenWrapper: {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-    },
-
     topLeftPicker: {
       position: 'absolute',
       top: rect?.y || 50 - 25,

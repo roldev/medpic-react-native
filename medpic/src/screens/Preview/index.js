@@ -45,7 +45,7 @@ export default function Preview({route, navigation}) {
 
     // when video is chosen there's no frame, but there is a size
     let finalRect = rect;
-    if(!finalRect) {
+    if (!finalRect) {
       finalRect = {
         originX: 0,
         originY: 0,
@@ -66,7 +66,7 @@ export default function Preview({route, navigation}) {
         type: 'video/mp4',
       });
     }
-
+    
     formData.append('filename', filename);
     formData.append(
       'requestDataForAnalyze',
@@ -110,10 +110,9 @@ export default function Preview({route, navigation}) {
         res
           .json()
           .then((res) => {
-            const diagnosisMessage =
-              'diagnosis' in res
-                ? res.diagnosis
-                : 'No suggested diagnosis was returned';
+            const diagnosisMessage = res.diagnosis
+              ? res.diagnosis
+              : 'No suggested diagnosis was returned';
 
             const alertHeader = 'Video Sent Successfully';
             const alertMsg = `${diagnosisMessage}`;

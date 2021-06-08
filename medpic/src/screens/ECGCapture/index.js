@@ -1,13 +1,13 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {RNCamera} from 'react-native-camera';
-import {View, Text, StyleSheet, Alert, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import Torch from 'react-native-torch';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {useIsFocused} from '@react-navigation/native';
 
 import CountDownBlink from './components/CountDownBlink';
 
 import ResizableRectangle from '../../components/ResizeableRectangle';
-import AppPermissions from '../../utils/AppPermissions';
 import config from '../../config';
 
 export default function ECGCapture({navigation}) {
@@ -20,6 +20,28 @@ export default function ECGCapture({navigation}) {
   );
   const [innerRect, setInnerRect] = useState({});
   const [limitingRect, setLimitingRect] = useState({});
+  const [cameraSize, setCameraSize] = useState({});
+  const isFocused = useIsFocused();
+  const [captureRect, setCaptureRect] = useState(false);
+
+  useEffect(() => {
+    const {width, height} = Dimensions.get('window');
+    const innerOffset = 100;
+    const cameraHeight = width * 1.77;
+    const yCoord = (height - cameraHeight) / 2;
+
+    setCameraSize({
+      width: width,
+      height: cameraHeight,
+    });
+
+    setLimitingRect({
+      x: 0,
+      y: yCoord + 15,
+      height: cameraHeight - innerOffset,
+      width: width - innerOffset,
+    });
+  }, []);
 
   useEffect(() => {
     if (shouldContinue && video) {
@@ -34,36 +56,23 @@ export default function ECGCapture({navigation}) {
   }, [video]);
 
   const recordVideo = () => {
-    const appPermissions = new AppPermissions();
-    const audioRecordingPermission = appPermissions.getAudioRecordingPermission();
-    if (!audioRecordingPermission) {
-      Alert.alert(
-        'Please enable Audio Recording to record Video',
-        'Although we record muted video, the permission is required',
-        [
-          {
-            text: 'OK',
-            onPress: () => {},
-          },
-        ],
-      );
-
-      return;
-    }
-
     setCameraTorchState(RNCamera.Constants.FlashMode.torch);
     setIsRecording(true);
+
+    setCaptureRect(true);
 
     cameraRef.current
       .recordAsync({
         quality: RNCamera.Constants.VideoQuality['1080p'],
         maxDuration: config.consts.videoDuration,
         mute: true,
+        orientation: 'portrait',
       })
       .then((recordedVideo) => {
         setIsRecording(false);
-        Torch.switchState(false);
         setVideo(recordedVideo);
+
+        Torch.switchState(false);
       });
   };
 
@@ -76,49 +85,47 @@ export default function ECGCapture({navigation}) {
     cameraRef.current.stopRecording();
   };
 
-  const handleCameraLoad = (event) => {
-    const innerOffset = 100;
-    event.target.measure((x, y, width, height, pageX, pageY) => {
-      setLimitingRect({
-        x: x,
-        y: y,
-        height: height - innerOffset,
-        width: width - innerOffset,
-      });
-    });
-  };
-
   const calcRectPixels = (imageWidth, imageHeight) => {
     // this is to support the requested ratio (while there are no width/height values from recorded videos)
     imageWidth = 1080;
     imageHeight = 1920;
 
-    const xRatio = innerRect.x / Dimensions.get('window').width;
+    const xRatio = innerRect.x / cameraSize.width;
     let originX = imageWidth * xRatio;
 
-    const widthRatio = innerRect.width / Dimensions.get('window').width;
+    const widthRatio = innerRect.width / cameraSize.width;
     let width = imageWidth * widthRatio;
 
-    const yRatio = innerRect.y / Dimensions.get('window').height;
-    let originY = (imageHeight + 100) * yRatio;
+    const yRatio = innerRect.y / cameraSize.height;
+    let originY = imageHeight * yRatio;
 
-    const heightRatio = innerRect.height / Dimensions.get('window').height;
+    const heightRatio = innerRect.height / cameraSize.height;
     let height = imageHeight * heightRatio;
 
-    return {
-      originX: originY,
+    const yOffset = 100;
+    const rectPixels = {
+      originX: originY - yOffset,
       originY: originX,
-      width: width,
-      height: height,
+      width: height,
+      height: width,
     };
+
+    return rectPixels;
   };
 
   const goToSelect = () => {
     navigation.navigate('SelectAction');
   };
 
+  const styles = stylesBuilder({cameraSize});
+
+  if (!isFocused) {
+    return <Text>Camera not available</Text>;
+  }
+
   return (
-    <View style={styles.container} onLayout={handleCameraLoad}>
+    <View style={styles.container}>
+      <Text style={styles.leftSide}>This is the left side of the ECG plot</Text>
       <RNCamera
         flashMode={cameraTorchState}
         autoFocus={RNCamera.Constants.AutoFocus.on}
@@ -126,109 +133,122 @@ export default function ECGCapture({navigation}) {
         type={RNCamera.Constants.Type.back}
         zoom={0}
         ref={cameraRef}
-        style={styles.camera}>
-        <View style={styles.overlayWrapper}>
-          <Text style={styles.leftSide}>
-            This is the left side of the ECG plot
-          </Text>
-
-          <ResizableRectangle rect={innerRect} setRect={setInnerRect} limitingRect={limitingRect} />
+        style={styles.camera}
+      />
+      <View style={styles.resizableRectangleWrapper}>
+        <View style={styles.testWrapper}>
+          <ResizableRectangle
+            rect={innerRect}
+            setRect={setInnerRect}
+            limitingRect={limitingRect}
+            shouldCaptureRect={captureRect}
+          />
         </View>
-        <View style={styles.actionsWrapper}>
-          {isRecording ? (
-            <>
-              <CountDownBlink
-                style={styles.countDownBlink}
-                seconds={config.consts.videoDuration}
-                countDownColor={config.colors.secondary}
-              />
-              <View style={styles.buttonsWrapper}>
-                <Icon.Button
-                  name="video-slash"
-                  onPress={cancelVideoRecord}
-                  backgroundColor="transparent"
-                  size={55}
-                  style={styles.leftIcon}
-                />
-                <Icon.Button
-                  name="stop-circle"
-                  onPress={stopVideoRecord}
-                  backgroundColor="transparent"
-                  size={65}
-                  style={styles.middleIcon}
-                />
-              </View>
-            </>
-          ) : (
+      </View>
+      <View style={styles.actionsWrapper}>
+        {isRecording ? (
+          <>
+            <CountDownBlink
+              style={styles.countDownBlink}
+              seconds={config.consts.videoDuration}
+              countDownColor={config.colors.secondary}
+            />
             <View style={styles.buttonsWrapper}>
               <Icon.Button
-                name="arrow-alt-circle-left"
-                onPress={goToSelect}
+                name="video-slash"
+                onPress={cancelVideoRecord}
                 backgroundColor="transparent"
-                size={50}
+                size={55}
                 style={styles.leftIcon}
               />
               <Icon.Button
-                name="video"
-                onPress={recordVideo}
-                color={config.colors.primary}
+                name="stop-circle"
+                onPress={stopVideoRecord}
                 backgroundColor="transparent"
-                size={50}
+                size={65}
                 style={styles.middleIcon}
               />
             </View>
-          )}
-        </View>
-      </RNCamera>
+          </>
+        ) : (
+          <View style={styles.buttonsWrapper}>
+            <Icon.Button
+              name="arrow-alt-circle-left"
+              onPress={goToSelect}
+              backgroundColor="transparent"
+              size={50}
+              style={styles.leftIcon}
+            />
+            <Icon.Button
+              name="video"
+              onPress={recordVideo}
+              color={config.colors.primary}
+              backgroundColor="transparent"
+              size={50}
+              style={styles.middleIcon}
+            />
+          </View>
+        )}
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+function stylesBuilder({cameraSize}) {
+  return {
+    container: {
+      flexDirection: 'column',
+      justifyContent: 'space-around',
+      backgroundColor: config.colors.secondary,
+      flex: 1,
+    },
 
-  camera: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-  },
+    camera: {
+      width: cameraSize.width,
+      height: cameraSize.height,
+    },
 
-  overlayWrapper: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
+    resizableRectangleWrapper: {
+      position: 'absolute',
+      flex: 1,
+      top: 0,
+    },
 
-  actionsWrapper: {
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'flex-end',
-    width: 100,
-    alignSelf: 'center',
-  },
+    testWrapper: {
+      flexDirection: 'column',
+      justifyContent: 'space-around',
+    },
 
-  leftSide: {
-    top: 50,
-    position: 'absolute',
-    alignSelf: 'center',
-    color: config.colors.secondary,
-    backgroundColor: config.colors.primary,
-  },
+    actionsWrapper: {
+      bottom: 50,
+      position: 'absolute',
+      alignSelf: 'center',
+      color: config.colors.secondary,
+      backgroundColor: 'transparent',
+    },
 
-  middleIcon: {
-    alignSelf: 'center',
-  },
+    leftSide: {
+      top: 50,
+      position: 'absolute',
+      alignSelf: 'center',
+      zIndex: 10,
+      color: config.colors.secondary,
+      backgroundColor: config.colors.primary,
+    },
 
-  buttonsWrapper: {
-    flexDirection: 'row',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    middleIcon: {
+      alignSelf: 'center',
+    },
 
-  countDownBlink: {
-    alignSelf: 'center',
-  },
-});
+    buttonsWrapper: {
+      flexDirection: 'row',
+      alignContent: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    countDownBlink: {
+      alignSelf: 'center',
+    },
+  };
+}
