@@ -151,12 +151,6 @@ export default function ResizableRectangle({
  
   useEffect(() => {
     if (shouldCaptureRect) {
-      console.log('!', {
-        x: actualTopLeft.x,
-        y: actualTopLeft.y,
-        width: actualTopRight.x - actualTopLeft.x + FRAME_POINT_SHORT_SIDE,
-        height: actualBottomLeft.y - actualTopLeft.y + FRAME_POINT_LONG_SIDE,
-      });
       setRect({
         x: actualTopLeft.x,
         y: actualTopLeft.y,

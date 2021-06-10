@@ -1,12 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {Video} from 'expo-av';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import 'react-native-get-random-values'; // must come before uuid
@@ -29,6 +22,7 @@ export default function Preview({route, navigation}) {
   const [selectedDiag, setSelectedDiag] = useState([]);
   const [customDiag, setCustomDiag] = useState(null);
 
+  const [areActionsDisabled, setAreActionsDisabled] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
   const [abortController] = useState(new AbortController());
@@ -66,7 +60,7 @@ export default function Preview({route, navigation}) {
         type: 'video/mp4',
       });
     }
-    
+
     formData.append('filename', filename);
     formData.append(
       'requestDataForAnalyze',
@@ -173,18 +167,28 @@ export default function Preview({route, navigation}) {
           setSelectedDiag={setSelectedDiag}
           customDiag={customDiag}
           setCustomDiag={setCustomDiag}
+          onToggleCB={() => {
+            setAreActionsDisabled(!areActionsDisabled);
+          }}
+          onBackButtonCB={() => {
+            setAreActionsDisabled(false);
+          }}
         />
-        <View style={styles.buttonsContainer}>
-          <Icon.Button
-            name="arrow-alt-circle-left"
-            onPress={goToSelect}
-            backgroundColor="transparent"
-            size={50}
-          />
-          <TouchableOpacity onPress={send} style={[styles.button, styles.send]}>
-            <Text style={styles.sendText}>SUBMIT</Text>
-          </TouchableOpacity>
-        </View>
+        {!areActionsDisabled && (
+          <View style={styles.buttonsContainer}>
+            <Icon.Button
+              name="arrow-alt-circle-left"
+              onPress={goToSelect}
+              backgroundColor="transparent"
+              size={50}
+            />
+            <TouchableOpacity
+              onPress={send}
+              style={[styles.button, styles.send]}>
+              <Text style={styles.sendText}>SUBMIT</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   ) : (
@@ -235,15 +239,14 @@ const styles = StyleSheet.create({
   },
 
   buttonsContainer: {
-    flex: 1,
     position: 'absolute',
     width: '100%',
-    height: '100%',
     flexDirection: 'row',
     backgroundColor: 'transparent',
     alignItems: 'flex-end',
     justifyContent: 'space-around',
-    top: 0,
+    bottom: 0,
+    zIndex: 15,
   },
 
   button: {

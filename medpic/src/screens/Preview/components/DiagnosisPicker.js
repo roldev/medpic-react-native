@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, TextInput, StyleSheet} from 'react-native';
+import {View, TextInput, Dimensions, Platform} from 'react-native';
 import MultiSelect from 'react-native-multiple-select';
 import config from '../../../config';
 
@@ -8,6 +8,8 @@ export default function DiagnosisPicker({
   setSelectedDiag,
   customDiag,
   setCustomDiag,
+  onToggleCB,
+  onBackButtonCB,
 }) {
   const [items, setItems] = useState([{id: 'Other', name: 'Other'}]);
 
@@ -24,6 +26,10 @@ export default function DiagnosisPicker({
       });
   }, []);
 
+  const {height} = Dimensions.get('screen');
+  const desiredHeight = Platform.OS === 'ios' ? 450 : height;
+  const styles = stylesBuilder({height: desiredHeight});
+
   return (
     <View style={[styles.pickerWrapper]}>
       <MultiSelect
@@ -32,6 +38,8 @@ export default function DiagnosisPicker({
         onSelectedItemsChange={(selectedItems) => {
           setSelectedDiag(selectedItems);
         }}
+        onToggleList={onToggleCB}
+        onClearSelector={onBackButtonCB}
         selectedItems={selectedDiag}
         submitButtonColor={config.colors.primary}
         submitButtonText="Close"
@@ -61,28 +69,33 @@ export default function DiagnosisPicker({
   );
 }
 
-const styles = StyleSheet.create({
-  pickerWrapper: {
-    zIndex: 20,
-    position: 'absolute',
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    bottom: 70,
-  },
+function stylesBuilder({height}) {
+  return {
+    pickerWrapper: {
+      zIndex: 10,
+      width: '100%',
+      height: height,
+      top: '10%',
+    },
 
-  selectorContainer: {
-    height: 450,
-    bottom: 70,
-  },
+    selectorContainer: {
+      zIndex: 10,
+      height: height,
+    },
 
-  customDiag: {
-    bottom: 0,
-    backgroundColor: 'white',
-    height: 40,
-  },
+    customDiag: {
+      bottom: 0,
+      backgroundColor: 'white',
+      height: 40,
+    },
 
-  searchInput: {
-    fontSize: 20,
-  },
-});
+    searchInput: {
+      fontSize: 20,
+    },
+
+    input: {
+      bottom: '10%',
+      zIndex: 10,
+    },
+  };
+}
