@@ -1,17 +1,17 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
-import {Video} from 'expo-av';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Video } from 'expo-av';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import 'react-native-get-random-values'; // must come before uuid
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 import DiagnosisPicker from './components/DiagnosisPicker';
 import SendingAnimation from './components/SendingAnimation';
 
-import UserData, {USER_ID_KEY} from '../../store/UserData';
+import UserData, { USER_ID_KEY } from '../../store/UserData';
 import config from '../../config';
 
-export default function Preview({route, navigation}) {
+export default function Preview({ route, navigation }) {
   if (!route.params.video) {
     return <Text>No video supplied</Text>;
   }
@@ -41,10 +41,26 @@ export default function Preview({route, navigation}) {
     let finalRect = rect;
     if (!finalRect) {
       finalRect = {
-        originX: 0,
-        originY: 0,
-        width: video.width,
-        height: video.height,
+        camera_width: 9,
+        camera_height: 16,
+        frame_dimensions: {
+          top_left: {
+            x: 0,
+            y: 0
+          },
+          top_right: {
+            x: 9,
+            y: 0
+          },
+          bottom_left: {
+            x: 0,
+            y: 16
+          },
+          bottom_right: {
+            x: 9,
+            y: 16
+          }
+        }
       };
     }
 
@@ -90,7 +106,7 @@ export default function Preview({route, navigation}) {
           Alert.alert(alertHeader, '', [
             {
               text: 'OK',
-              onPress: () => {},
+              onPress: () => { },
             },
           ]);
 
