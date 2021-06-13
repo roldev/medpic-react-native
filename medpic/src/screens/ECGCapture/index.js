@@ -1,16 +1,16 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {RNCamera} from 'react-native-camera';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { RNCamera } from 'react-native-camera';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Torch from 'react-native-torch';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 import CountDownBlink from './components/CountDownBlink';
 
-import ResizableRectangle from '../../components/ResizeableRectangle';
+import ResizeableRectangle from '../../components/ResizeableRectangle';
 import config from '../../config';
 
-export default function ECGCapture({navigation}) {
+export default function ECGCapture({ navigation }) {
   const cameraRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [video, setVideo] = useState(null);
@@ -25,9 +25,10 @@ export default function ECGCapture({navigation}) {
   const [captureRect, setCaptureRect] = useState(false);
 
   useEffect(() => {
-    const {width, height} = Dimensions.get('window');
+    const { width, height } = Dimensions.get('window');
     const innerOffset = 100;
-    const cameraHeight = width * 1.77;
+    const nineToSixteenRatio = 1.77;
+    const cameraHeight = width * nineToSixteenRatio;
     const yCoord = (height - cameraHeight) / 2;
 
     setCameraSize({
@@ -37,7 +38,7 @@ export default function ECGCapture({navigation}) {
 
     setLimitingRect({
       x: 0,
-      y: yCoord + 15,
+      y: yCoord,
       height: cameraHeight - innerOffset,
       width: width - innerOffset,
     });
@@ -46,7 +47,7 @@ export default function ECGCapture({navigation}) {
   useEffect(() => {
     if (shouldContinue && video) {
       navigation.navigate('Preview', {
-        rect: calcRectPixels(video.width, video.height),
+        rect: formatRect(),
         video,
       });
     }
@@ -85,39 +86,41 @@ export default function ECGCapture({navigation}) {
     cameraRef.current.stopRecording();
   };
 
-  const calcRectPixels = (imageWidth, imageHeight) => {
-    // this is to support the requested ratio (while there are no width/height values from recorded videos)
-    imageWidth = 1080;
-    imageHeight = 1920;
-
-    const xRatio = innerRect.x / cameraSize.width;
-    let originX = imageWidth * xRatio;
-
-    const widthRatio = innerRect.width / cameraSize.width;
-    let width = imageWidth * widthRatio;
-
-    const yRatio = innerRect.y / cameraSize.height;
-    let originY = imageHeight * yRatio;
-
-    const heightRatio = innerRect.height / cameraSize.height;
-    let height = imageHeight * heightRatio;
-
-    const yOffset = 100;
-    const rectPixels = {
-      originX: originY - yOffset,
-      originY: originX,
-      width: height,
-      height: width,
-    };
-
-    return rectPixels;
-  };
-
   const goToSelect = () => {
     navigation.navigate('SelectAction');
   };
 
-  const styles = stylesBuilder({cameraSize});
+  const formatRect = () => {
+    const screenHeight = Dimensions.get('screen').height;
+    const cameraYOffset = ((screenHeight - cameraSize.height) / 2) - limitingRect.y;
+
+    const finalInnerRect = {
+      top_left: {
+        x: innerRect.top_left.x,
+        y: innerRect.top_left.y - cameraYOffset
+      },
+      top_right: {
+        x: innerRect.top_right.x,
+        y: innerRect.top_right.y - cameraYOffset
+      },
+      bottom_left: {
+        x: innerRect.bottom_left.x,
+        y: innerRect.bottom_left.y - cameraYOffset
+      },
+      bottom_right: {
+        x: innerRect.bottom_right.x,
+        y: innerRect.bottom_right.y - cameraYOffset
+      }
+    }
+
+    return {
+      camera_width: cameraSize.width,
+      camera_height: cameraSize.height,
+      frame_dimensions: finalInnerRect
+    };
+  };
+
+  const styles = stylesBuilder({ cameraSize });
 
   if (!isFocused) {
     return <Text>Camera not available</Text>;
@@ -135,10 +138,9 @@ export default function ECGCapture({navigation}) {
         ref={cameraRef}
         style={styles.camera}
       />
-      <View style={styles.resizableRectangleWrapper}>
+      <View style={styles.resizeableRectangleWrapper}>
         <View style={styles.testWrapper}>
-          <ResizableRectangle
-            rect={innerRect}
+          <ResizeableRectangle
             setRect={setInnerRect}
             limitingRect={limitingRect}
             shouldCaptureRect={captureRect}
@@ -194,7 +196,7 @@ export default function ECGCapture({navigation}) {
   );
 }
 
-function stylesBuilder({cameraSize}) {
+function stylesBuilder({ cameraSize }) {
   return {
     container: {
       flexDirection: 'column',
@@ -208,7 +210,7 @@ function stylesBuilder({cameraSize}) {
       height: cameraSize.height,
     },
 
-    resizableRectangleWrapper: {
+    resizeableRectangleWrapper: {
       position: 'absolute',
       flex: 1,
       top: 0,

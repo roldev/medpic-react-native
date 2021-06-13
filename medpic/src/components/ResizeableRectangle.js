@@ -1,6 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {Animated, PanResponder} from 'react-native';
-import {act} from 'react-test-renderer';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, PanResponder } from 'react-native';
+import { act } from 'react-test-renderer';
 
 import config from '../config';
 
@@ -13,7 +13,7 @@ const FRAME_POINT_SHORT_SIDE = 50;
 const FRAME_POINT_LONG_SIDE = 50;
 const FRAME_POINT_BORDER_WIDTH = 7;
 
-export default function ResizableRectangle({
+export default function ResizeableRectangle({
   setRect,
   limitingRect,
   externalStyle,
@@ -54,7 +54,7 @@ export default function ResizableRectangle({
             x: point.x._value,
             y: point.y._value,
           });
-          point.setValue({x: 0, y: 0});
+          point.setValue({ x: 0, y: 0 });
         },
         onMoveShouldSetPanResponder: () => {
           point.setOffset({
@@ -63,7 +63,7 @@ export default function ResizableRectangle({
           });
         },
         onPanResponderMove: (event, gestureState) => {
-          Animated.event([null, {dx: point.x, dy: point.y}], {
+          Animated.event([null, { dx: point.x, dy: point.y }], {
             useNativeDriver: false,
           })(event, gestureState);
         },
@@ -97,21 +97,25 @@ export default function ResizableRectangle({
   }, [JSON.stringify(limitingRect)]);
 
   useEffect(() => {
-    topLeftElementRef.current.measureInWindow((x, y, width, height) => {
-      setActualTopLeft({x: x, y: y});
-    });
+    topLeftElementRef.current.measureInWindow(
+      (x, y, width, height) => {
+        setActualTopLeft({ x: x, y: y });
+      });
 
-    topRightElementRef.current.measureInWindow((x, y, width, height) => {
-      setActualTopRight({x: x, y: y});
-    });
+    topRightElementRef.current.measureInWindow(
+      (x, y, width, height) => {
+        setActualTopRight({ x: x, y: y });
+      });
 
-    bottomLeftElementRef.current.measureInWindow((x, y, width, height) => {
-      setActualBottomLeft({x: x, y: y});
-    });
+    bottomLeftElementRef.current.measureInWindow(
+      (x, y, width, height) => {
+        setActualBottomLeft({ x: x, y: y });
+      });
 
-    bottomRightElementRef.current.measureInWindow((x, y, width, height) => {
-      setActualBottomRight({x: x, y: y});
-    });
+    bottomRightElementRef.current.measureInWindow(
+      (x, y, width, height) => {
+        setActualBottomRight({ x: x, y: y });
+      });
   }, [rectChangeCount]);
 
   useEffect(() => {
@@ -148,19 +152,31 @@ export default function ResizableRectangle({
 
     setRectChangeCount(rectChangeCount + 1);
   };
- 
+
   useEffect(() => {
     if (shouldCaptureRect) {
       setRect({
-        x: actualTopLeft.x,
-        y: actualTopLeft.y,
-        width: actualTopRight.x - actualTopLeft.x + FRAME_POINT_SHORT_SIDE,
-        height: actualBottomLeft.y - actualTopLeft.y + FRAME_POINT_LONG_SIDE,
+        top_left: {
+          x: actualTopLeft.x,
+          y: actualTopLeft.y
+        },
+        top_right: {
+          x: actualTopRight.x + FRAME_POINT_SHORT_SIDE,
+          y: actualTopRight.y
+        },
+        bottom_left: {
+          x: actualBottomLeft.x,
+          y: actualBottomLeft.y + FRAME_POINT_LONG_SIDE
+        },
+        bottom_right: {
+          x: actualBottomRight.x + FRAME_POINT_SHORT_SIDE,
+          y: actualBottomRight.y + FRAME_POINT_LONG_SIDE
+        }
       });
     }
   }, [shouldCaptureRect]);
 
-  const styles = styleBuilder({rect: originalRect});
+  const styles = styleBuilder({ rect: originalRect });
 
   return (
     <>
@@ -268,7 +284,7 @@ export default function ResizableRectangle({
   );
 }
 
-function styleBuilder({rect}) {
+function styleBuilder({ rect }) {
   return {
     topLeftPicker: {
       position: 'absolute',
