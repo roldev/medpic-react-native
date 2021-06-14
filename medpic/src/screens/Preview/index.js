@@ -43,7 +43,7 @@ export default function Preview({ route, navigation }) {
       finalRect = {
         camera_width: 9,
         camera_height: 16,
-        frame_dimensions: {
+        frame: {
           top_left: {
             x: 0,
             y: 0
