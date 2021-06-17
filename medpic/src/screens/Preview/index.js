@@ -137,7 +137,7 @@ export default function Preview({ route, navigation }) {
         Alert.alert(errorHeader, 'Please try again', [
           {
             text: 'OK',
-            onPress: () => {},
+            onPress: () => { },
           },
         ]);
         console.error(error);
@@ -148,6 +148,9 @@ export default function Preview({ route, navigation }) {
   };
 
   const goToSelect = () => {
+    setVideo(null);
+    setSelectedDiag([]);
+    setCustomDiag(null);
     navigation.navigate('SelectAction');
   };
 

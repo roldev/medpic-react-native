@@ -7,6 +7,7 @@ import org.unimodules.core.interfaces.Package;
 public class BasePackageList {
   public List<Package> getPackageList() {
     return Arrays.<Package>asList(
+        new expo.modules.application.ApplicationPackage(),
         new expo.modules.av.AVPackage(),
         new expo.modules.constants.ConstantsPackage(),
         new expo.modules.filesystem.FileSystemPackage(),
@@ -15,6 +16,7 @@ public class BasePackageList {
         new expo.modules.imagepicker.ImagePickerPackage(),
         new expo.modules.location.LocationPackage(),
         new expo.modules.network.NetworkPackage(),
+        new expo.modules.notifications.NotificationsPackage(),
         new expo.modules.permissions.PermissionsPackage()
     );
   }
