@@ -1,8 +1,11 @@
-import { Notifications } from 'react-native-notifications';
+import * as Notifications from 'expo-notifications';
 
 export function showNotification(title, content) {
-  Notifications.postLocalNotification({
-    title: title,
-    body: content,
+  Notifications.scheduleNotificationAsync({
+    content: {
+      title: title,
+      body: content,
+    },
+    trigger: null,
   });
 }
