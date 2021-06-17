@@ -13,6 +13,7 @@ export default config = {
     paths: {
       user: 'user',
       uploadimage: 'diagnosis-data',
+      analyzeFile: 'analyze-file',
       diagnosisOptions: 'diagnosis-options',
     },
   },

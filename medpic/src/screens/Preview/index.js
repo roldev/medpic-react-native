@@ -9,6 +9,7 @@ import DiagnosisPicker from './components/DiagnosisPicker';
 import SendingAnimation from './components/SendingAnimation';
 
 import UserData, { USER_ID_KEY } from '../../store/UserData';
+import ECGResultGetter from '../../utils/ECGResultGetter';
 import config from '../../config';
 
 export default function Preview({ route, navigation }) {
@@ -43,7 +44,7 @@ export default function Preview({ route, navigation }) {
       finalRect = {
         camera_width: 9,
         camera_height: 16,
-        frame_dimensions: {
+        frame: {
           top_left: {
             x: 0,
             y: 0
@@ -102,7 +103,7 @@ export default function Preview({ route, navigation }) {
             headers: res.headers,
           });
 
-          const alertHeader = 'There was an error sending';
+          const alertHeader = 'There was an error uploading the file';
           Alert.alert(alertHeader, '', [
             {
               text: 'OK',
@@ -113,44 +114,30 @@ export default function Preview({ route, navigation }) {
           return;
         }
 
-        setVideo(null);
-        setSelectedDiag([]);
-        setCustomDiag(null);
+        const resultGetter = new ECGResultGetter(filename);
+        resultGetter.start();
 
-        res
-          .json()
-          .then((res) => {
-            const diagnosisMessage = res.diagnosis
-              ? res.diagnosis
-              : 'No suggested diagnosis was returned';
+        const alertHeader = 'Video Sent Successfully';
+        const alertMsg = 'We will notify you once the analysis response is ready';
 
-            const alertHeader = 'Video Sent Successfully';
-            const alertMsg = `${diagnosisMessage}`;
-
-            Alert.alert(alertHeader, alertMsg, [
-              {
-                text: 'OK',
-                onPress: () => {
-                  navigation.navigate('SelectAction');
-                },
-              },
-            ]);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+        Alert.alert(alertHeader, alertMsg, [
+          {
+            text: 'OK',
+            onPress: () => {
+              goToSelect();
+            },
+          },
+        ]);
       })
       .catch((error) => {
         const errorHeader =
           error.name === 'AbortError'
             ? 'Sending canceled'
             : 'There was an error sending';
-        Alert.alert(errorHeader, '', [
+        Alert.alert(errorHeader, 'Please try again', [
           {
             text: 'OK',
-            onPress: () => {
-              navigation.navigate('SelectAction');
-            },
+            onPress: () => {},
           },
         ]);
         console.error(error);

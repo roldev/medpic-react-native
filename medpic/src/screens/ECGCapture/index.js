@@ -116,7 +116,7 @@ export default function ECGCapture({ navigation }) {
     return {
       camera_width: cameraSize.width,
       camera_height: cameraSize.height,
-      frame_dimensions: finalInnerRect
+      frame: finalInnerRect
     };
   };
 

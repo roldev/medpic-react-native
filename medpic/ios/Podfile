@@ -12,6 +12,8 @@ target 'medpic' do
 
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
 
+  pod 'react-native-background-actions', :path => '../node_modules/react-native-background-actions'
+
   target 'medpicTests' do
     inherit! :complete
     # Pods for testing
