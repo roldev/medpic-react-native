@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -23,9 +23,9 @@ import UserData, {
   USER_HAS_AGREED_KEY,
 } from '../../store/UserData';
 import AppPermissions from '../../utils/AppPermissions';
-import {buildUrlWithQueryParams} from '../../utils/network';
+import { buildUrlWithQueryParams } from '../../utils/network';
 
-export default function Login({navigation}) {
+export default function Login({ navigation }) {
   const userStoreAccess = new UserData();
   const appPermissions = new AppPermissions();
 
@@ -75,12 +75,12 @@ export default function Login({navigation}) {
     }
 
     const {
-      coords: {latitude, longitude},
+      coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Lowest,
     });
 
-    const addresses = await Location.reverseGeocodeAsync({latitude, longitude});
+    const addresses = await Location.reverseGeocodeAsync({ latitude, longitude });
 
     let finalLocation = '';
     if (addresses.length < 0) {
@@ -91,7 +91,7 @@ export default function Login({navigation}) {
       finalLocation = `${addresses[0].city}, ${addresses[0].country}`;
     }
 
-    setUserData({...userData, location: finalLocation});
+    setUserData({ ...userData, location: finalLocation });
   };
 
   const navigateToNextPage = () => {
@@ -106,29 +106,33 @@ export default function Login({navigation}) {
       return;
     }
 
-    const {id, ...userDataForSubmission} = userData;
+    const { id, ...userDataForSubmission } = userData;
+    try {
+      const response = await fetch(
+        buildUrlWithQueryParams(
+          `${config.urls.baseUrl}${config.urls.paths.user}`,
+          userDataForSubmission,
+        ),
+      );
+      if (!response.ok) {
+        setError('Error retrieving user');
+        return;
+      }
 
-    const response = await fetch(
-      buildUrlWithQueryParams(
-        `${config.urls.baseUrl}${config.urls.paths.user}`,
-        userDataForSubmission,
-      ),
-    );
-    if (!response.ok) {
-      setError('Error retrieving user');
-      return;
+      let userId = await response.json();
+      userId = userId.id;
+      setUserData({ ...userData, id: userId });
+
+      userStoreAccess.setData({
+        USER_ID_KEY: userId,
+        USER_NAME_KEY: userData.name,
+        USER_PHONE_KEY: userData.phone,
+        USER_LOCATION_KEY: userData.location,
+        USER_IP_KEY: userData.ip,
+      });
+    } catch (e) {
+      console.log(e.message);
     }
-    let userId = await response.json();
-    userId = userId.id;
-    setUserData({...userData, id: userId});
-
-    userStoreAccess.setData({
-      USER_ID_KEY: userId,
-      USER_NAME_KEY: userData.name,
-      USER_PHONE_KEY: userData.phone,
-      USER_LOCATION_KEY: userData.location,
-      USER_IP_KEY: userData.ip,
-    });
 
     navigateToNextPage();
   };
@@ -140,7 +144,7 @@ export default function Login({navigation}) {
       <View style={styles.input}>
         <TextInput
           value={userData.name}
-          onChangeText={(name) => setUserData({...userData, name})}
+          onChangeText={(name) => setUserData({ ...userData, name })}
           placeholder="Name..."
           placeholderTextColor={config.colors.inputPlaceHolder}
           style={styles.inputText}
@@ -149,7 +153,7 @@ export default function Login({navigation}) {
       <View style={styles.input}>
         <TextInput
           value={userData.phone}
-          onChangeText={(phone) => setUserData({...userData, phone})}
+          onChangeText={(phone) => setUserData({ ...userData, phone })}
           placeholder="Phone Number..."
           placeholderTextColor={config.colors.inputPlaceHolder}
           style={styles.inputText}
@@ -160,7 +164,7 @@ export default function Login({navigation}) {
         <View style={styles.input}>
           <TextInput
             value={userData.location}
-            onChangeText={(location) => setUserData({...userData, location})}
+            onChangeText={(location) => setUserData({ ...userData, location })}
             placeholder="City, Country..."
             placeholderTextColor="#003f5c"
             style={styles.inputText}

@@ -1,38 +1,40 @@
-import * as Permissions from "expo-permissions";
+import * as Permissions from 'expo-permissions';
 
 export default class AppPermissions {
-    constructor() {
-    }
+  constructor() {}
 
-    async requestPermissionAsync(type) {
-        const { status } = await Permissions.askAsync(type);
-        return (status === 'granted');
-    }
+  async requestPermissionAsync(type) {
+    const {status} = await Permissions.askAsync(type);
+    return status === 'granted';
+  }
 
-    async getLocationPermission() {
-        const isGranted = await this.requestPermissionAsync(
-            Permissions.LOCATION
-        );
+  async getLocationPermission() {
+    const isGranted = await this.requestPermissionAsync(Permissions.LOCATION);
 
-        return isGranted;
-    }
+    return isGranted;
+  }
 
-    async getCameraPermission() {
-        const isGranted = await this.requestPermissionAsync(
-            Permissions.CAMERA
-        );
+  async getCameraPermission() {
+    const isGranted = await this.requestPermissionAsync(Permissions.CAMERA);
 
-        return isGranted;
-    }
+    return isGranted;
+  }
 
-    async getAudioRecordingPermission() {
-        const isGranted = await this.requestPermissionAsync(
-            Permissions.AUDIO_RECORDING
-        );
+  async getAudioRecordingPermission() {
+    const isGranted = await this.requestPermissionAsync(
+      Permissions.AUDIO_RECORDING,
+    );
 
-        return isGranted;
-    };
+    return isGranted;
+  }
 
+  async getNotificationsPermission() {
+    const isGranted = await this.requestPermissionAsync(
+      Permissions.USER_FACING_NOTIFICATIONS,
+    );
+
+    return isGranted;
+  }
 }
 
-export { Permissions };
+export {Permissions};

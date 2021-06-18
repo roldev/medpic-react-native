@@ -16,9 +16,11 @@ export default function SelectAction({navigation}) {
 
   useEffect(() => {
     const cameraPermission = appPermissions.getCameraPermission();
-
+    const notificationPermission = appPermissions.getNotificationsPermission();
+console.log(notificationPermission);
     setPermissions({
       camera: cameraPermission,
+      notification: notificationPermission
     });
   }, []);
 

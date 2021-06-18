@@ -2,6 +2,7 @@ import React from 'react';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import * as Notifications from 'expo-notifications';
 
 import Login from './src/screens/Login';
 import Explanation from './src/screens/Explanation';
@@ -12,6 +13,14 @@ import Preview from './src/screens/Preview';
 const Stack = createStackNavigator();
 
 export default function App() {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+  
   return (
     <NavigationContainer>
       <Stack.Navigator>
