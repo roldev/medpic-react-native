@@ -131,11 +131,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.medpic"
+        applicationId "com.medpic.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "2.0.0"
+        versionCode 4
+        versionName "3.1.2"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
@@ -149,10 +149,10 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('medpic_app.keystore')
-            storePassword 'TODO_READ_FROM_CMD'
-            keyAlias 'medpic_app'
-            keyPassword 'TODO_READ_FROM_CMD'
+            storeFile file('medpic-upload-key.keystore')
+            storePassword 'dread&fear'
+            keyAlias 'medpic-key-alias'
+            keyPassword 'dread&fear'
         }
         debug {
             storeFile file('debug.keystore')
