@@ -9,7 +9,7 @@ export default config = {
     disabled: 'lightgray',
   },
   urls: {
-    baseUrl: 'http://132.68.36.204/',
+    baseUrl: 'https://medpic.xyz',
     paths: {
       user: 'user',
       uploadimage: 'diagnosis-data',
