@@ -9,6 +9,7 @@ import Explanation from './src/screens/Explanation';
 import ECGCapture from './src/screens/ECGCapture';
 import SelectAction from './src/screens/SelectAction';
 import Preview from './src/screens/Preview';
+import SubmissionResultView from './src/screens/SubmissionResultView';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,11 @@ export default function App() {
         <Stack.Screen
           name="Preview"
           component={Preview}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SubmissionResultView"
+          component={SubmissionResultView}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

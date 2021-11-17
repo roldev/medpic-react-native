@@ -4,11 +4,15 @@ import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 import AppPermissions from '../../utils/AppPermissions';
 import NoPermission from '../../components/NoPermission';
+import SubmissionResult, { SUBMISSION_FILE } from '../../store/SubmissionResult';
 
 import config from '../../config';
 
 export default function SelectAction({navigation}) {
+  const [submissionFilename, setSubmissionFilename] = useState('');
+
   const appPermissions = new AppPermissions();
+  const submissionResultDataAccess = new SubmissionResult();
 
   const [permissions, setPermissions] = useState({
     camera: false,
@@ -17,10 +21,18 @@ export default function SelectAction({navigation}) {
   useEffect(() => {
     const cameraPermission = appPermissions.getCameraPermission();
     const notificationPermission = appPermissions.getNotificationsPermission();
-console.log(notificationPermission);
+
     setPermissions({
       camera: cameraPermission,
       notification: notificationPermission
+    });
+  }, []);
+
+  useEffect(() => {
+    submissionResultDataAccess.getData().then(async (data) => {
+      const storeSubmissionFilename = data[SUBMISSION_FILE] ? data[SUBMISSION_FILE] : '';
+
+      setSubmissionFilename(storeSubmissionFilename);
     });
   }, []);
 
@@ -57,9 +69,19 @@ console.log(notificationPermission);
     navigation.navigate('Explanation');
   };
 
+  const goToSubmissionResult = async () => {
+    navigation.navigate('SubmissionResultView');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonsCotainer}>
+        {!!submissionFilename && (
+          <TouchableOpacity onPress={goToSubmissionResult} style={styles.button}>
+            <Text style={styles.buttonText}>View Latest Result</Text>
+          </TouchableOpacity>
+        )}
+
         {permissions.camera && (
           <TouchableOpacity onPress={recordVideo} style={styles.button}>
             <Text style={styles.buttonText}>Record a video</Text>

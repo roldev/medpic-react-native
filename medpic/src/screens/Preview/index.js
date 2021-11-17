@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DiagnosisPicker from './components/DiagnosisPicker';
 import SendingAnimation from './components/SendingAnimation';
 
+import SubmissionResult, { SUBMISSION_FILE } from '../../store/SubmissionResult';
 import UserData, { USER_ID_KEY } from '../../store/UserData';
 import ECGResultGetter from '../../utils/ECGResultGetter';
 import config from '../../config';
@@ -37,6 +38,10 @@ export default function Preview({ route, navigation }) {
     setIsSending(true);
 
     const filename = uuidv4() + '.mp4';
+
+    const submissionResultDataAccess = new SubmissionResult();
+    submissionResultDataAccess.setVal(SUBMISSION_FILE, filename);
+    console.log(filename, SUBMISSION_FILE, 3);
 
     // when video is chosen there's no frame, but there is a size
     let finalRect = rect;
@@ -113,7 +118,7 @@ export default function Preview({ route, navigation }) {
 
           return;
         }
-
+        
         const resultGetter = new ECGResultGetter(filename);
         resultGetter.start();
 
