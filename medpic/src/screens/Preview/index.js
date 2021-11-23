@@ -10,7 +10,6 @@ import SendingAnimation from './components/SendingAnimation';
 
 import SubmissionResult, { SUBMISSION_FILE } from '../../store/SubmissionResult';
 import UserData, { USER_ID_KEY } from '../../store/UserData';
-import ECGResultGetter from '../../utils/ECGResultGetter';
 import config from '../../config';
 
 export default function Preview({ route, navigation }) {
@@ -41,7 +40,6 @@ export default function Preview({ route, navigation }) {
 
     const submissionResultDataAccess = new SubmissionResult();
     submissionResultDataAccess.setVal(SUBMISSION_FILE, filename);
-    console.log(filename, SUBMISSION_FILE, 3);
 
     // when video is chosen there's no frame, but there is a size
     let finalRect = rect;
@@ -119,20 +117,8 @@ export default function Preview({ route, navigation }) {
           return;
         }
         
-        const resultGetter = new ECGResultGetter(filename);
-        resultGetter.start();
+        navigation.navigate('SubmissionResultView');
 
-        const alertHeader = 'Video Sent Successfully';
-        const alertMsg = 'We will notify you once the analysis response is ready';
-
-        Alert.alert(alertHeader, alertMsg, [
-          {
-            text: 'OK',
-            onPress: () => {
-              goToSelect();
-            },
-          },
-        ]);
       })
       .catch((error) => {
         const errorHeader =
