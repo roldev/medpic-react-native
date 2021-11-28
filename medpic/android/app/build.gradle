@@ -134,8 +134,8 @@ android {
         applicationId "com.medpic.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10
-        versionName "2.0.3"
+        versionCode 11
+        versionName "2.0.4"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
@@ -202,6 +202,8 @@ dependencies {
     implementation project(':react-native-camera')
 
     addUnimodulesDependencies()
+
+    implementation project(':react-native-svg')
     
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'

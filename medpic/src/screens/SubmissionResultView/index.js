@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-import SubmissionResult, { SUBMISSION_FILE } from '../../store/SubmissionResult';
+import SubmissionResult, { SUBMISSION_FILE, SUBMISSION_RESULT } from '../../store/SubmissionResult';
 import config from '../../config';
 
 export default function SubmissionResultView({navigation}) {
@@ -12,40 +12,49 @@ export default function SubmissionResultView({navigation}) {
   const submissionResultDataAccess = new SubmissionResult();
 
   useEffect(() => {
-    setHeader('Fetching Result');
-    submissionResultDataAccess.getVal(SUBMISSION_FILE).then((filename) => {
+    const asyncFunc = async () => {
+      setHeader('Fetching Result');
+
+      const {SUBMISSION_FILE, SUBMISSION_RESULT} = await submissionResultDataAccess.getData();
+      if(SUBMISSION_RESULT) {
+        setHeader('Result for Latest Upload:')
+        setResult(SUBMISSION_RESULT);
+        return;
+      }
+
       fetch(`${config.urls.baseUrl}${config.urls.paths.analyzeFile}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          ecgName: filename
+          ecgName: SUBMISSION_FILE
         })
       })
         .then((res) => {
           setHeader('ECG Analysis Result');
-  
+
           if (!res.ok) {
             console.error({
               status: res.status,
               headers: res.headers,
             });
-  
+
             setResult('There was an error getting analysis');
             
             return;
           }
-  
+          
           res
-            .json()
-            .then((res) => {
-              let notificationContent = 'No result was retrieved';
-              
-              if(res.data) {
-                notificationContent = res.data;
-              }
-  
+          .json()
+          .then((res) => {
+            let notificationContent = 'No result was retrieved';
+            
+            if(res.data) {
+              notificationContent = res.data;
+            }
+            
+              submissionResultDataAccess.setVal('SUBMISSION_RESULT', notificationContent);
               setResult(notificationContent);
             })
             .catch((error) => {
@@ -55,7 +64,8 @@ export default function SubmissionResultView({navigation}) {
         .catch((error) => {
           console.error(error);
         });
-    });
+    };
+    asyncFunc();
   }, []);
 
   return (

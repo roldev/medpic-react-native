@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DiagnosisPicker from './components/DiagnosisPicker';
 import SendingAnimation from './components/SendingAnimation';
 
-import SubmissionResult, { SUBMISSION_FILE } from '../../store/SubmissionResult';
+import SubmissionResult, { SUBMISSION_FILE, SUBMISSION_RESULT } from '../../store/SubmissionResult';
 import UserData, { USER_ID_KEY } from '../../store/UserData';
 import config from '../../config';
 
@@ -40,6 +40,7 @@ export default function Preview({ route, navigation }) {
 
     const submissionResultDataAccess = new SubmissionResult();
     submissionResultDataAccess.setVal(SUBMISSION_FILE, filename);
+    submissionResultDataAccess.setVal(SUBMISSION_RESULT, '');
 
     // when video is chosen there's no frame, but there is a size
     let finalRect = rect;
@@ -87,7 +88,7 @@ export default function Preview({ route, navigation }) {
       JSON.stringify({
         userId: userData[USER_ID_KEY],
         filename: filename,
-        selectedDiags: selectedDiag.join(','),
+        selectedDiags: selectedDiag.map((diag)=>(diag.id)).join(','),
         customDiag: customDiag,
         angle: 0,
         overlay: finalRect,
@@ -132,9 +133,6 @@ export default function Preview({ route, navigation }) {
           },
         ]);
         console.error(error);
-      })
-      .finally(() => {
-        setIsSending(false);
       });
   };
 

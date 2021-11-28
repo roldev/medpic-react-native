@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {View, TextInput, Dimensions, Platform} from 'react-native';
-import MultiSelect from 'react-native-multiple-select';
+import {View, TextInput} from 'react-native';
+import SelectBox from 'react-native-multi-selectbox'
 import config from '../../../config';
 
 export default function DiagnosisPicker({
@@ -11,7 +11,7 @@ export default function DiagnosisPicker({
   onToggleCB,
   onBackButtonCB,
 }) {
-  const [items, setItems] = useState([{id: 'Other', name: 'Other'}]);
+  const [items, setItems] = useState([{id: 'Other', item: 'Other'}]);
 
   useEffect(() => {
     fetch(`${config.urls.baseUrl}${config.urls.paths.diagnosisOptions}`)
@@ -20,41 +20,42 @@ export default function DiagnosisPicker({
         const initialItems = items;
         const serverItems = diagnosisOptions.map(({id, name}) => ({
           id: id.toString(),
-          name: name,
+          item: name,
         }));
         setItems(serverItems.concat(initialItems));
       });
   }, []);
 
-  const {height} = Dimensions.get('screen');
-  const desiredHeight = Platform.OS === 'ios' ? 450 : height;
-  const styles = stylesBuilder({height: desiredHeight});
+  function onMultiChange() {
+    return (item) => {
+      const itemIdx = selectedDiag.findIndex((currentItem) => (currentItem.id === item.id));
+      let newSelectedDiag = [];
+      if(itemIdx === -1) {
+        newSelectedDiag = selectedDiag.concat(item);
+      } else {
+        newSelectedDiag = [...selectedDiag];
+        newSelectedDiag.splice(itemIdx, 1);
+      }
+      setSelectedDiag(newSelectedDiag);
+    };
+  }
+
+  const styles = stylesBuilder();
 
   return (
     <View style={[styles.pickerWrapper]}>
-      <MultiSelect
-        items={items}
-        uniqueKey="id"
-        onSelectedItemsChange={(selectedItems) => {
-          setSelectedDiag(selectedItems);
-        }}
-        onToggleList={onToggleCB}
-        onClearSelector={onBackButtonCB}
-        selectedItems={selectedDiag}
-        submitButtonColor={config.colors.primary}
-        submitButtonText="Close"
-        tagRemoveIconColor={config.colors.primary}
-        tagBorderColor={config.colors.primary}
-        tagTextColor={config.colors.primary}
-        selectedItemTextColor="red"
-        selectedItemIconColor={config.colors.secondary}
-        searchInputPlaceholderText="Search Diagnoses..."
-        searchInputStyle={styles.searchInput}
-        fixedHeight={true}
-        styleSelectorContainer={styles.selectorContainer}
-      />
-
-      {selectedDiag.indexOf('Other') !== -1 && (
+      {items.length > 0 && <SelectBox 
+        inputPlaceholder='Search Diagnoses...'
+        options={items}
+        selectedValues={selectedDiag}
+        onMultiSelect={onMultiChange()}
+        inputFilterContainerStyle={styles.diag}
+        optionsLabelStyle={styles.diag}
+        optionContainerStyle={styles.diag}
+        containerStyle={styles.diag}        
+        isMulti
+      />}
+      {selectedDiag.findIndex((currentItem) => (currentItem.id === 'Other')) !== -1 && (
         <View style={styles.input}>
           <TextInput
             value={customDiag}
@@ -69,18 +70,18 @@ export default function DiagnosisPicker({
   );
 }
 
-function stylesBuilder({height}) {
+function stylesBuilder() {
   return {
     pickerWrapper: {
       zIndex: 10,
       width: '100%',
-      height: height,
+      height: 400,
       top: '10%',
     },
 
     selectorContainer: {
       zIndex: 10,
-      height: height,
+      height: 400,
     },
 
     customDiag: {
@@ -94,8 +95,12 @@ function stylesBuilder({height}) {
     },
 
     input: {
-      bottom: '10%',
+      marginTop: 10,
       zIndex: 10,
     },
+
+    diag: {
+      backgroundColor: 'white'
+    }, 
   };
 }
