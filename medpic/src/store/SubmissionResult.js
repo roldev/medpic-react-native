@@ -30,7 +30,7 @@ export default class SubmissionResult {
 
   async setData(submissionData) {
     const currentData = await this.getData();
-    AsyncStorage.setItem(
+    return AsyncStorage.setItem(
       this.storeSubmissionResultKey,
       JSON.stringify({
         ...currentData,

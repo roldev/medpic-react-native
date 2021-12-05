@@ -39,8 +39,10 @@ export default function Preview({ route, navigation }) {
     const filename = uuidv4() + '.mp4';
 
     const submissionResultDataAccess = new SubmissionResult();
-    submissionResultDataAccess.setVal(SUBMISSION_FILE, filename);
-    submissionResultDataAccess.setVal(SUBMISSION_RESULT, '');
+    await submissionResultDataAccess.setData({
+      SUBMISSION_FILE: filename,
+      SUBMISSION_RESULT: '',
+    });
 
     // when video is chosen there's no frame, but there is a size
     let finalRect = rect;
