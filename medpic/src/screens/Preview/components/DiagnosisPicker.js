@@ -50,7 +50,7 @@ export default function DiagnosisPicker({
         selectedValues={selectedDiag}
         onMultiSelect={onMultiChange()}
         inputFilterContainerStyle={styles.diag}
-        optionsLabelStyle={styles.diag}
+        listOptionProps={{style: styles.selectorContainer}}
         optionContainerStyle={styles.diag}
         containerStyle={styles.diag}        
         isMulti
@@ -80,8 +80,7 @@ function stylesBuilder() {
     },
 
     selectorContainer: {
-      zIndex: 10,
-      height: 400,
+      height: 370,
     },
 
     customDiag: {
